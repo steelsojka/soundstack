@@ -1,7 +1,7 @@
 var templates = { navbar_template : function(obj){
 var __t,__p='',__j=Array.prototype.join,print=function(){__p+=__j.call(arguments,'');};
 with(obj||{}){
-__p+='\n  <div class="add-module-btn btn">+</div>\n  <div class="cancel-add-btn btn hide">&times</div>\n  <div class="main-menu">\n    <div></div><div></div><div></div>\n    <select>\n      <option value="null">No action</option>\n      <option value="collapseAll">Collapse All</option>\n      <option value="expandAll">Expand All</option>\n      <option value="load">Load...</option>\n      <option value="save">Save...</option>\n      <option value="help">Help...</option>\n      <!--<option value="settings">Settings...</option>-->\n      <option value="about">About</option>\n    </select>\n  </div>\n  <div id="bpm">\n    <input class="frosted-glass" maxlength="3" value="120" type="text" pattern="\\d{2,3}" placeholder="BPM"></div>\n  </div>\n  <div class="logo"></div>\n';
+__p+='\n  <div class="add-module-btn btn">+</div>\n  <div class="cancel-add-btn btn hide">&times</div>\n  <div class="main-menu">\n    <div></div><div></div><div></div>\n    <select>\n      <option value="null">No action</option>\n      <option value="collapseAll">Collapse All</option>\n      <option value="expandAll">Expand All</option>\n      <option value="load">Load...</option>\n      <option value="save">Save...</option>\n      <option value="help">Help...</option>\n      <option value="settings">Settings...</option>\n      <option value="about">About</option>\n    </select>\n  </div>\n  <div id="bpm">\n    <input class="frosted-glass" maxlength="3" value="120" type="text" pattern="\\d{2,3}" placeholder="BPM"></div>\n  </div>\n  <div class="logo"></div>\n';
 }
 return __p;
 },
@@ -264,7 +264,11 @@ return __p;
 settings_template : function(obj){
 var __t,__p='',__j=Array.prototype.join,print=function(){__p+=__j.call(arguments,'');};
 with(obj||{}){
-__p+='\n';
+__p+='\n  <div class="popup-heading">Settings</div>\n  <div class="global-setting">\n    <label for="buffer-size">Buffer Size:</label>\n    <input class="glass-input" data-setting="bufferSize" id="buffer-size" type="text" value="'+
+((__t=( bufferSize ))==null?'':__t)+
+'" pattern="\\d*"/>\n    <span class="small">* Requires a restart</span>\n  </div>\n  <!--<div class="global-setting">\n    <label for="buffer-size">Sample Rate:</label>\n    <input class="glass-input" data-setting="sampleRate" id="sample-rate" type="text" value="'+
+((__t=( sampleRate ))==null?'':__t)+
+'" pattern="\\d*"/>\n    <span class="small">* Requires a restart</span>\n  </div>-->\n';
 }
 return __p;
 },
@@ -274,6 +278,19 @@ with(obj||{}){
 __p+='\n  '+
 ((__t=( presetName ))==null?'':__t)+
 '\n';
+}
+return __p;
+},
+mouse_tooltip_template : function(obj){
+var __t,__p='',__j=Array.prototype.join,print=function(){__p+=__j.call(arguments,'');};
+with(obj||{}){
+__p+='\n  <div id="mouse-tooltip">\n    '+
+((__t=( _.pad(minutes, 2) ))==null?'':__t)+
+':'+
+((__t=( _.pad(seconds, 2) ))==null?'':__t)+
+':'+
+((__t=( _.pad(milliseconds, 2) ))==null?'':__t)+
+'\n  </div>\n';
 }
 return __p;
 },

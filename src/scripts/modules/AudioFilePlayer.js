@@ -72,6 +72,22 @@ function(BaseModule, AudioFile) {
       this.loop = loop;
       // this.nodes.audioSource.setLoop.apply(this.nodes.audioSource, arguments);
     },
+    setRate : function() {
+      this.nodes.audioSource.setRate.apply(this.nodes.audioSource, arguments);
+    },
+    setPosition : function(position) {
+      this.currentPosition = position;
+      if (this.isPlaying) {
+        this.pause();
+        this.play();
+      }
+    },
+    getDuration : function() {
+      return this.duration;
+    },
+    getPlaybackRate : function() {
+      return this.nodes.audioSource.getPlaybackRate();
+    },
     setReference : function(bool) {
       this.reference = bool;
       this.isPlaying = !bool;
@@ -85,6 +101,7 @@ function(BaseModule, AudioFile) {
       } else {
         this.contextStartTime = this.context.currentTime;
         this.playFromPosition = this.currentPosition;
+        this.lastFrameTime = 0;
         this.nodes.audioSource.unpause();
         this.nodes.audioSource.start(0, this.currentPosition, this.duration - this.currentPosition);
         this.isPlaying = true;
@@ -100,7 +117,10 @@ function(BaseModule, AudioFile) {
     },
     onFrame : function() {
       if (this.isPlaying) {
-        this.currentPosition = this.playFromPosition + (this.context.currentTime - this.contextStartTime);
+        // this.currentPosition = this.playFromPosition + (this.context.currentTime - this.contextStartTime);
+        this.currentPosition += ((this.context.currentTime - this.contextStartTime) - this.lastFrameTime) * this.getPlaybackRate();
+        this.lastFrameTime = (this.context.currentTime - this.contextStartTime);
+
         requestAnimFrame(this.onFrame);
         if (this.currentPosition >= this.duration) {
           if (this.loop) {

@@ -25,7 +25,7 @@ function(BaseModule, Gain, Oscillator, BPMSync, Envelope, ScriptNode, MonoToSter
       var bpm        = new BPMSync(this.context);
       var envelope   = new Envelope(this.context, 0, 0.1, 0.1, 0.05);
       var osc        = new Oscillator(this.context);
-      var scriptNode = new ScriptNode(this.context, 512, 1, 1);
+      var scriptNode = new ScriptNode(this.context, settings.get('bufferSize'), 1, 1);
       var mono2Stereo = new MonoToStereo(this.context);
 
       _.extend(this, Backbone.Events);

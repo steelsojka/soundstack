@@ -10,7 +10,7 @@ define(["modules/BaseModule", "components/ScriptNode"], function(BaseModule, Scr
       this._amount = 1;
 
       var self = this;
-      var clipper = new ScriptNode(this.context, 512, 2, 2);
+      var clipper = new ScriptNode(this.context, settings.get('bufferSize'), 2, 2);
       
 
       clipper.onAudioProcess(function(e) {

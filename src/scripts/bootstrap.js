@@ -30,6 +30,11 @@ _.mixin({
   },
   inRange : function(value, min, max) {
     return value >= min ? value <= max ? value : max : min;
+  },
+  pad : function(num, size) {
+    var s = parseInt(num, 10) + "";
+    while (s.length < size) s = 0 + s;
+    return s;
   }
 });
 

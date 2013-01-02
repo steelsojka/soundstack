@@ -3,7 +3,7 @@ define(["components/ScriptNode", "components/BaseNode"], function(ScriptNode, Ba
 	var MonoToStereo = BaseNode.extend({
 		init : function() {
 			this._super.apply(this, arguments);
-      this.node = new ScriptNode(this.context, 256, 2, 2);
+      this.node = new ScriptNode(this.context, settings.get('bufferSize'), 2, 2);
       this.setInputNode(this.node.inputNode);
       this.setOutputNode(this.node.outputNode);
 

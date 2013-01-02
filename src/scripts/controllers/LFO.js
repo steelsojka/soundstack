@@ -75,7 +75,7 @@ function(BaseController, ScriptNode) {
     init : function(context, speed, amplitude, max, offset) {
       this._super.apply(this, arguments);
       var self = this;
-      var node = new ScriptNode(this.context, 512, 1, 1);
+      var node = new ScriptNode(this.context, settings.get('bufferSize'), 1, 1);
       node.onAudioProcess(function(e) {
         self.calculate(e);
       });

@@ -7,8 +7,14 @@ function(NavigationView, RightPaneView, SettingsModel, SettingsView, StackCollec
     initialize : function() {
       _.bindAll(this);
 
+      this.settings = new SettingsModel();
+      this.settings.on('loaded', this.onSettingsLoaded);
+      window.settings = this.settings;
+
+      this.settings.load();
+    },
+    onSettingsLoaded : function() {
       var self = this;
-      var settings = new SettingsModel();
       var stack = new StackCollection();
 
       new RightPaneView({
@@ -17,15 +23,14 @@ function(NavigationView, RightPaneView, SettingsModel, SettingsView, StackCollec
       });
       new NavigationView({
         model : self.model,
-        settings : settings,
+        settings : this.settings,
         stack : stack
       });
 
       new SettingsView({
-        model : settings,
-        $container : $(this.el)
+        model : this.settings,
+        $container : $(self.el)
       });
-
     },
     render : function() {
 

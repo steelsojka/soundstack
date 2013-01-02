@@ -7,7 +7,7 @@ define(["modules/BaseModule", "components/ScriptNode"], function(BaseModule, Scr
   var Bitcrusher = BaseModule.extend({
     init : function() {
       this._super.apply(this, arguments);
-      var crusher = new ScriptNode(this.context, 512, 2, 2);
+      var crusher = new ScriptNode(this.context, settings.get('bufferSize'), 2, 2);
       var self = this;
       this._bits = 8;
       

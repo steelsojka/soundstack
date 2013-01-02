@@ -11,6 +11,7 @@ define(function() {
       this.status = "No audio loaded";
 
       var template = env === "web" ? _.template($('#stack-module-static-waveform').html()) : templates.stack_module_static_waveform;
+      this.tooltipTemplate = env === "web" ? _.template($('#mouse-tooltip-template').html()) : templates.mouse_tooltip_template;
       
       $el.html(template(this.component));
       
@@ -25,6 +26,12 @@ define(function() {
       this.module.on('status-update', this.onStatusUpdate);
       this.module.on('play', this.drawLoop);
       this.module.on('stop', this.clearProgress);
+
+      this.$el.find('.frosted-glass').on('click', this.onMouseClick)
+                                     .on('mousemove', this.onMouseMove)
+                                     .on('mouseover', this.onMouseOver)
+                                     .on('mouseout', this.onMouseOut);
+
     },
     build : function(argument) {
       this.buffer = this.module.getBuffer();
@@ -41,6 +48,52 @@ define(function() {
     onStatusUpdate : function(status) {
       this.clearWaveform();
       this.$el.find('.waveform-status').html(status);
+    },
+    _getMousePosition : function(e) {
+      var rect = this.canvas.getBoundingClientRect();
+      return {
+        x : e.clientX - rect.left,
+        y : e.clientY - rect.top
+      }
+    },
+    onMouseClick : function(e) {
+      var pos = this._getMousePosition(e);
+      var canvasWidth = $(this.canvas).width();
+      var x = pos.x / canvasWidth;
+
+      var newPosition = this.module.getDuration() * x;
+
+      this.module.setPosition(newPosition);
+     
+      if (!this.module.isPlaying) {
+        this.drawProgress()
+      }
+    },
+    onMouseOver : function(e) {
+      $('#tooltip-container').removeClass('hide');
+    },
+    onMouseOut : function(e) {
+      $('#tooltip-container').addClass('hide');
+    },
+    renderTooltip : function(e) {
+      $('#tooltip-container').html(this.tooltipTemplate(this.getMouseTime(e)))
+                             .css({top : e.clientY - 50, left : e.clientX - 35});
+    },
+    getMouseTime : function(e) {
+      var pos = this._getMousePosition(e);
+      var canvasWidth = $(this.canvas).width();
+      var x = pos.x / canvasWidth;
+
+      var newPosition = this.module.getDuration() * x;
+
+      return {
+        minutes : ~~ ((newPosition % 3600) / 60),
+        seconds : newPosition % 60,
+        milliseconds : ((newPosition % 60) - ~~(newPosition % 60)) * 1000
+      }
+    },
+    onMouseMove : function(e) {
+      this.renderTooltip(e);
     },
     clearStatus : function() {
       this.$el.find('.waveform-status').html("");
@@ -87,7 +140,6 @@ define(function() {
     drawProgress : function() {
       var ctx = this.overlayContext;
       var position = (this.module.getPosition() * this.fps) / this.fpp;
-
       ctx.clearRect(0, 0, this.overlayCanvas.width, this.overlayCanvas.height);
       ctx.fillStyle = 'rgba(255,255,255, 0.7)';
       ctx.fillRect(0, 0, position, this.overlayCanvas.height);

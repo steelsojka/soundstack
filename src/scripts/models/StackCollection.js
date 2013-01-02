@@ -99,6 +99,9 @@ function(ModuleInstanceModel, AudioContext, BaseModel, MasterOut) {
       });
       this.on('remove', this.onRemove);
       this.on('change:BPM', this.updateBPM);
+
+      // settings.on('restart', this.onRestart);
+      
       global_relay.on('load-recorded-audio', function(model, callback) {
         self.createModule(model, undefined, undefined, callback);
       });
@@ -107,6 +110,15 @@ function(ModuleInstanceModel, AudioContext, BaseModel, MasterOut) {
       });
       this.initializeStack();
       // this.on('user-input:loaded', this.initializeStack);
+    },
+    onRestart : function() {
+      var self = this;
+      
+      this.each(function(model) {
+        self.remove(model);
+      });
+      
+      this.reset();
     },
     initializeStack : function() {
 

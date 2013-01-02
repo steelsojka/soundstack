@@ -325,6 +325,33 @@ body
     @include prefix(border-bottom-left-radius, 5px)
     @include prefix(border-bottom-right-radius, 5px)
 
+.popup-heading
+  font-family: $main-font
+  color: #FFFFFF
+  font-size: 22px
+  margin: 0 0 20px 0
+
+.glass-input
+  @extend .frosted-glass
+  width: 50px
+  text-align: center
+  height: 30px
+  @include box-sizing(border-box)
+  padding: 0 5px
+  color: #FFFFFF
+  font-size: 13px
+  background-image: url(../../images/module_texture.jpg)
+
+#tooltip-container
+  position: absolute
+  color: #FFFFFF
+  z-index: 1000
+  font-size: 100
+  padding: 5px
+  background-color: rgba(0,0,0,0.3)
+  @include border-radius(5px)
+  @include shadow(0 0 5px rgba(0,0,0,0.7))
+
 
 @import "settings"
 

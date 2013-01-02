@@ -185,7 +185,7 @@ body {
 #main-content-wrapper {
   height: 100%; }
 
-.frosted-glass {
+.frosted-glass, .glass-input {
   border-style: solid !important;
   border-color: #333333 #333333 #777777 #333333 !important;
   border-width: 1px !important;
@@ -493,7 +493,8 @@ body {
       top: 0;
       left: 0; }
     .stack-module .ui-component .ui-waveform-static div > canvas,
-    .stack-module .ui-component .ui-waveform-static div > .frosted-glass {
+    .stack-module .ui-component .ui-waveform-static div > .frosted-glass,
+    .stack-module .ui-component .ui-waveform-static div > .glass-input {
       width: 100%;
       position: absolute;
       height: 150px; }
@@ -954,9 +955,61 @@ body {
     -o-border-bottom-right-radius: 5px;
     border-bottom-right-radius: 5px; }
 
+.popup-heading {
+  font-family: "Audiowide", Arial, sans-serif;
+  color: white;
+  font-size: 22px;
+  margin: 0 0 20px 0; }
+
+.glass-input {
+  width: 50px;
+  text-align: center;
+  height: 30px;
+  -webkit-box-sizing: border-box;
+  -moz-box-sizing: border-box;
+  -ms-box-sizing: border-box;
+  -o-box-sizing: border-box;
+  box-sizing: border-box;
+  padding: 0 5px;
+  color: white;
+  font-size: 13px;
+  background-image: url(../../images/module_texture.jpg); }
+
+#tooltip-container {
+  position: absolute;
+  color: white;
+  z-index: 1000;
+  font-size: 100;
+  padding: 5px;
+  background-color: rgba(0, 0, 0, 0.3);
+  -webkit-border-radius: 5px;
+  -moz-border-radius: 5px;
+  -ms-border-radius: 5px;
+  -o-border-radius: 5px;
+  border-radius: 5px;
+  -webkit-box-shadow: 0 0 5px rgba(0, 0, 0, 0.7);
+  -moz-box-shadow: 0 0 5px rgba(0, 0, 0, 0.7);
+  -ms-box-shadow: 0 0 5px rgba(0, 0, 0, 0.7);
+  -o-box-shadow: 0 0 5px rgba(0, 0, 0, 0.7);
+  box-shadow: 0 0 5px rgba(0, 0, 0, 0.7); }
+
 #settings {
   width: 100%;
   height: 100%;
-  position: relative;
+  position: absolute;
+  -webkit-box-sizing: border-box;
+  -moz-box-sizing: border-box;
+  -ms-box-sizing: border-box;
+  -o-box-sizing: border-box;
+  box-sizing: border-box;
+  padding: 60px 10px 0 10px;
   z-index: 60;
-  background-color: rgba(0, 0, 0, 0.6); }
+  color: white;
+  background-color: rgba(0, 0, 0, 0.8); }
+  #settings input {
+    margin: 0 0 0 15px;
+    color: white; }
+  #settings .setting-error {
+    color: red; }
+  #settings .small {
+    font-size: 12px; }

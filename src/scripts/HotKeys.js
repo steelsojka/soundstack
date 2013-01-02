@@ -7,15 +7,15 @@
   var space = 32;
 
   var keys = [
-    { codes : [space], event : "global-play"},
     { codes : [ctrl, 82], event : "global-record"},
     { codes : [ctrl, 79], event : "global-open"},
     { codes : [ctrl, 83], event : "global-save"},
-    { codes : [ctrl, space], event : "global-stop"},
+    { codes : [ctrl, space], event : "global-play"},
     { codes : [ctrl, 72], event : "global-help"},
     { codes : [ctrl, 69], event : "global-expand"},
     { codes : [ctrl, 67], event : "global-collapse"},
-    { codes : [ctrl, 65], event : "global-about"}
+    { codes : [ctrl, 65], event : "global-about"},
+    { codes : [27], event : "global-exit"}
   ];
 
   $(window).on('keydown', function(e) {

@@ -19,6 +19,7 @@ define(["components/BaseNode"], function(BaseNode) {
       this._super.apply(this, arguments);
       this.setLabel("Audio File");
       this.loop = false;
+      this.playbackRate = 1;
       this.source = this.outputNode = this.inputNode = this.node = this.context.createBufferSource();
 
     },
@@ -52,9 +53,17 @@ define(["components/BaseNode"], function(BaseNode) {
       // this.buffer = buffer;
       this.node = this.inputNode = this.outputNode = this.source;
       this.setParameters(this.source);
+      this.setRate(this.playbackRate);
       if (typeof callback === "function") {
         callback.call(this, this.source);
       }
+    },
+    setRate : function(value) {
+      this.source.playbackRate.value = value;
+      this.playbackRate = value;
+    },
+    getPlaybackRate : function() {
+      return this.source.playbackRate.value;
     },
     /**
      * Returns objects buffer.

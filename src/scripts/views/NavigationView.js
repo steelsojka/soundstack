@@ -165,9 +165,7 @@ function(PresetLoaderView, PresetCollection, HelpView, helpCollection) {
       }
     },
     onSettings: function() {
-      var show = !this.options.settings.get('show');
-      this.options.settings.set('show', show, {silent : true});
-      this.options.settings.trigger('toggle');
+      this.options.settings.trigger('show');
     },
     onBpmChange : function(e) {
       if (e.type === "keydown") {

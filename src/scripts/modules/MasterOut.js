@@ -20,7 +20,8 @@ function(Gain, BaseModule, ChannelMerger, Analyser) {
       this.nodes.merger.connect(this.nodes.gain).connect(this.nodes.reference);
 
       this.recorder = new Recorder(this.nodes.gain.getOutputNode(), {
-        workerPath : "scripts/library/RecorderWorker.js"
+        workerPath : "scripts/library/RecorderWorker.js",
+        bufferLen : settings.get('bufferSize')
       });
 
       this.connectToOutput(this.nodes.reference);

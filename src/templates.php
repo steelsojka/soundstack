@@ -10,7 +10,7 @@
       <option value="load">Load...</option>
       <option value="save">Save...</option>
       <option value="help">Help...</option>
-      <!--<option value="settings">Settings...</option>-->
+      <option value="settings">Settings...</option>
       <option value="about">About</option>
     </select>
   </div>
@@ -184,10 +184,27 @@
 </script>
 
 <script id="settings-template" type="text/template">
+  <div class="popup-heading">Settings</div>
+  <div class="global-setting">
+    <label for="buffer-size">Buffer Size:</label>
+    <input class="glass-input" data-setting="bufferSize" id="buffer-size" type="text" value="<%= bufferSize %>" pattern="\d*"/>
+    <span class="small">* Requires a restart</span>
+  </div>
+  <!--<div class="global-setting">
+    <label for="buffer-size">Sample Rate:</label>
+    <input class="glass-input" data-setting="sampleRate" id="sample-rate" type="text" value="<%= sampleRate %>" pattern="\d*"/>
+    <span class="small">* Requires a restart</span>
+  </div>-->
 </script>
 
 <script id="preset-template" type="text/template">
   <%= presetName %>
+</script>
+
+<script id="mouse-tooltip-template" type="text/template">
+  <div id="mouse-tooltip">
+    <%= _.pad(minutes, 2) %>:<%= _.pad(seconds, 2) %>:<%= _.pad(milliseconds, 2) %>
+  </div>
 </script>
 
 <script id="about-template" type="text/template">
