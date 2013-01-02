@@ -1,0 +1,1 @@
+define(["components/MediaStream","models/StackCollection"],function(e,t){var n=Backbone.Model.extend({initialize:function(){}});return n});

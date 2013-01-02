@@ -1,0 +1,1 @@
+define(["modules/BaseModule","components/AudioFile"],function(e,t){var n=e.extend({init:function(e){this._super.apply(this,arguments);var n=new t(this.context);this.nodes.audioSource=n,this.connectToOutput(n)},onFileLoad:function(e){this.nodes.audioSource.decodeAudio(e.target.result,this.onAudioDecode)},onAudioDecode:function(){}});return n});

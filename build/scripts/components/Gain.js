@@ -1,0 +1,1 @@
+define(["components/BaseNode"],function(e){var t=e.extend({init:function(){this._super.apply(this,arguments),this.setLabel("Gain");var e=this.context.createGainNode();this.setParameters({gain:e.gain}),this.node=this.inputNode=this.outputNode=e},setGain:function(e){return this.node.gain.value=e,this},getGain:function(e){return this.node.gain.value}});return t});

@@ -1,0 +1,1 @@
+define("ModifierList",["Modifier","Emitter","Class"],function(e,t,n){var r=n.extend({init:function(e){var t;this.label="ModifierList";if(e)for(t in e)e.hasOwnProperty(t)&&this.addModifier(t,e[t])},getModifier:function(e){if(e in this)return this[e]},addModifier:function(e,t){this[e]=t}});return r});

@@ -1,0 +1,27 @@
+{
+  "version" : "@VERSION@",
+  "interface" :
+  [
+    [
+      {
+        "type" : "slider",
+        "name" : "Input",
+        "minValue" : 0,
+        "maxValue" : 2,
+        "defaultValue" : 1,
+        "step" : 0.01,
+        "orientation" : "horizontal",
+        "disableClass" : "",
+        "func" : {
+          "name" : "setOutputBuffer",
+          "parameters" : [
+            {
+              "type" : "Float",
+              "value" : "@VALUE@"
+            }
+          ]
+        }
+      }
+    ]
+  ]
+}

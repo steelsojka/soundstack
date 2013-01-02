@@ -1,0 +1,1 @@
+define(["components/BaseNode"],function(e){var t=e.extend({init:function(e,t,n,r){this._super.apply(this,arguments),this.setLabel("Script Node");var i=this.context.createJavaScriptNode(t,n,r);this.node=this.inputNode=this.outputNode=i},onAudioProcess:function(e){return this.node.onaudioprocess=e,this}});return t});

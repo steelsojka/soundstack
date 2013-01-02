@@ -1,0 +1,1 @@
+define(["components/BaseNode"],function(e){var t=e.extend({init:function(){this._super.apply(this,arguments);var e=this.context.createWaveShaper();this.setLabel("WaveShaper"),this.node=this.inputNode=this.outputNode=e},setCurve:function(e){return this.node.curve=e,this}});return t});

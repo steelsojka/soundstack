@@ -1,0 +1,25 @@
+{
+  "version" : "@VERSION@",
+  "interface" : 
+  [
+    [
+      {
+        "type" : "select",
+        "name" : "Bits",
+        "defaultValue" : 32,
+        "valueArray" : [0.5, 1, 2, 4, 8, 16, 32],
+        "valueDisplayArray" : [0.5, 1, 2, 4, 8, 16, 32],
+        "disableClass" : "",
+        "func" : {
+          "name" : "setBits",
+          "parameters" : [
+            {
+              "type" : "Float",
+              "value" : "@VALUE@"
+            }
+          ]
+        }
+      }
+    ]
+  ]
+}

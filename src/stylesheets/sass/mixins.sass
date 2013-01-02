@@ -1,0 +1,30 @@
+@import "globals"
+
+$prefixes: webkit, moz, ms, o
+
+@mixin prefix($prop, $string)
+  @each $pre in $prefixes
+    -#{$pre}-#{$prop}: #{$string}
+  #{$prop}: #{$string}
+
+@mixin prefix-string($string)
+  @each $pre in $prefixes
+    -#{$pre}-#{$string}
+  #{$string}
+
+@mixin shadow($args...)
+  @include prefix(box-shadow, $args)
+
+@mixin box-sizing($args...)
+  @include prefix(box-sizing, $args)
+
+@mixin transition($args...)
+  @include prefix(transition, $args)
+
+@mixin border-radius($args...)
+  @include prefix(border-radius, $args)
+
+@mixin linear-gradient($args...)
+  @each $pre in $prefixes
+    background-image: -#{$pre}-linear-gradient($args)
+  background-image: linear-gradient($args)

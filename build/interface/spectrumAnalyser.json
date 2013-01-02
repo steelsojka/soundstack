@@ -1,0 +1,45 @@
+{
+  "version" : "@VERSION@",
+  "interface" : 
+  [
+    [
+      {
+        "type" : "select",
+        "name" : "Type",
+        "defaultValue" : 2,
+        "valueArray" : [0, 1, 2],
+        "valueDisplayArray" : ["Fill", "Line", "Bars"],
+        "func" : {
+          "name" : "setType",
+          "parameters" : [
+            {
+              "type" : "Integer",
+              "value" : "@VALUE@"
+            }
+          ]
+        }
+      },
+      {
+        "type" : "select",
+        "name" : "Bar Count",
+        "defaultValue" : 64,
+        "valueArray" : [8, 16, 32, 64, 128],
+        "valueDisplayArray" : [8, 16, 32, 64, 128],
+        "func" : {
+          "name" : "setBars",
+          "parameters" : [
+            {
+              "type" : "Integer",
+              "value" : "@VALUE@"
+            }
+          ]
+        }
+      },
+      {
+        "type" : "spectrum",
+        "name" : "Spectrum",
+        "channel" : 0
+      }
+    ]
+  ]
+}

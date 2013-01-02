@@ -1,0 +1,1 @@
+define(["components/BaseNode"],function(e){var t=e.extend({init:function(e,t){this._super.apply(this,arguments);var n=typeof t=="undefined"?1:t,r="createDelay"in e?e.createDelay(n):e.createDelayNode(n);this.setParameters(r),this.node=this.inputNode=this.outputNode=r},setTime:function(e){return this.modify("delayTime",e),this}});return t});

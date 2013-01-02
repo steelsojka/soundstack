@@ -1,0 +1,1 @@
+define(["components/BaseNode"],function(e){var t=e.extend({init:function(){this._super.apply(this,arguments),this.node=this.context.createConvolver(),this.setInputNode(this.node),this.setOutputNode(this.node)},loadImpulse:function(e){return this.node.buffer=e,this}});return t});

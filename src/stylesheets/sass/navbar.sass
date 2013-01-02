@@ -1,0 +1,108 @@
+@import "mixins", "globals"
+
+.navbar
+  width: 100%
+  background-color: #FF0000
+  height: 50px
+  position: absolute
+  top: 0px
+  right: 0px
+  z-index: 100
+  @include linear-gradient(top, rgba(114,79,79,1) 0%,rgba(5,5,5,1) 100%)
+  // @include linear-gradient(top, #eaeaea 0%,#ffffff 100%)
+  @include shadow(0 2px 5px rgba(0,0,0,0.5))
+  // @include shadow(0 2px 5px rgba(0,0,0,0.8))
+  .logo
+    width: 152px
+    height: 100%
+    background-image: url(../../images/logo400_dark.png)
+    opacity: 1
+    background-size: 152px
+ 
+  .add-module-btn,
+  .cancel-add-btn
+    float: right
+    // padding: 10px 20px
+    padding: 3px 10px 5px 10px
+    margin: 6px 10px 0 0 
+    border: 1px solid #FFFFFF
+    height: 35px
+    width: 50px
+    @include box-sizing(border-box)
+  .main-menu
+    position: relative
+    float: right
+    margin: 10px 20px 0 0
+    // right: 98px
+    // top: 14px
+    height: 40px
+    width: 30px
+    z-index: 10
+    div
+      width: 100%
+      height: 5px
+      @include border-radius(4px)
+      margin-bottom: 6px
+      background-color: #FFFFFF
+      // width: 50px
+      // height: 50px
+    select
+      position: absolute
+      top: 0
+      cursor: pointer
+      left: 0
+      width: 30px
+      height: 40px
+      min-width: 30px
+      opacity: 0
+      z-index: 20
+      min-height: 40px
+  #bpm
+    float: right
+    height: 100%
+    input
+      width: 50px
+      margin: 7px 20px 0 0
+      text-align: center
+      height: 30px
+      @include box-sizing(border-box)
+      padding: 0 5px
+      color: #FFFFFF
+      font-size: 13px
+      background-image: url(../../images/module_texture.jpg)
+
+#save-dialog
+  width: 100%
+  height: 50px
+  position: absolute
+  top: 50px
+  left: 0
+  z-index: 50
+  @include box-sizing(border-box)
+  padding: 5px
+  @include shadow(0 2px 5px rgba(0,0,0,0.7))
+  input
+    @include box-sizing(border-box)
+    padding: 5px
+    width: 100%
+    height: 100%
+
+.btn
+  border: 1px solid #bbbbbb
+  border-color: #e6e6e6 #e6e6e6 #bfbfbf
+  border-color: rgba(0, 0, 0, 0.1) rgba(0, 0, 0, 0.1) rgba(0, 0, 0, 0.25)
+  border-bottom-color: #a2a2a2
+  display: inline-block
+  padding: 4px 12px
+  margin-bottom: 0
+  font-size: 36px
+  line-height: 20px
+  color: #333333
+  text-align: center
+  text-shadow: 0 1px 1px rgba(255, 255, 255, 0.75)
+  vertical-align: middle
+  cursor: pointer
+  background-color: #f5f5f5
+  background-repeat: repeat-x
+  @include border-radius(4px)
+  @include shadow(inset 0 1px 0 rgba(255, 255, 255, 0.2), 0 1px 2px rgba(0, 0, 0, 0.05))

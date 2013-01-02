@@ -1,0 +1,82 @@
+{
+  "version" : "@VERSION@",
+  "interface" :
+  [
+    [
+      {
+        "type" : "slider",
+        "name" : "Frequency",
+        "minValue" : 40,
+        "maxValue" : 22000,
+        "defaultValue" : 350,
+        "step" : 1,
+        "orientation" : "horizontal",
+        "disableClass" : "",
+        "func" : {
+          "name" : "setFrequency",
+          "parameters" : [
+            {
+              "type" : "Integer",
+              "value" : "@VALUE@"
+            }
+          ]
+        }
+      },
+      {
+        "type" : "slider",
+        "name" : "Q",
+        "minValue" : 0.01,
+        "maxValue" : 10,
+        "defaultValue" : 1,
+        "step" : 0.01,
+        "orientation" : "horizontal",
+        "disableClass" : "",
+        "func" : {
+          "name" : "setQ",
+          "parameters" : [
+            {
+              "type" : "Integer",
+              "value" : "@VALUE@"
+            }
+          ]
+        }
+      },
+      {
+        "type" : "slider",
+        "name" : "Gain",
+        "minValue" : -40,
+        "maxValue" : 40,
+        "defaultValue" : 0,
+        "step" : 0.01,
+        "orientation" : "horizontal",
+        "disableClass" : "",
+        "func" : {
+          "name" : "setGain",
+          "parameters" : [
+            {
+              "type" : "Integer",
+              "value" : "@VALUE@"
+            }
+          ]
+        }
+      },
+      {
+        "type" : "select",
+        "name" : "Type",
+        "defaultValue" : 32,
+        "valueArray" : [0, 1, 2, 3, 4, 5, 6, 7],
+        "valueDisplayArray" : ["Lowpass", "Highpass", "Bandpass", "Lowshelf", "Highshelf", "Peaking", "Notch", "Allpass"],
+        "disableClass" : "",
+        "func" : {
+          "name" : "setType",
+          "parameters" : [
+            {
+              "type" : "Integer",
+              "value" : "@VALUE@"
+            }
+          ]
+        }
+      }
+    ]
+  ]
+}

@@ -1,0 +1,1 @@
+define(["components/BaseNode"],function(e){var t=e.extend({init:function(){this._super.apply(this,arguments);var e=this.context.createChannelMerger();this.node=this.inputNode=this.outputNode=e}});return t});

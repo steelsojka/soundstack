@@ -1,0 +1,121 @@
+{
+  "version" : "@VERSION@",
+  "interface" : 
+  [
+    [
+      {
+        "type" : "file",
+        "name" : "File",
+        "disableClass" : "",
+        "func" : {
+          "name" : "onFileLoad",
+          "parameters" : [
+            {
+              "type" : "Event",
+              "value" : "@VALUE@"
+            }
+          ]
+        }
+      }, {
+        "type" : "button",
+        "name" : "Play",
+        "disableClass" : "",
+        "class" : "int-width-half",
+        "addClassOnPress" : "pressed",
+        "func" : {
+          "name" : "play",
+          "parameters" : [
+            {
+              "type" : "Integer",
+              "value" : 0
+            }
+          ]
+        }
+      }, {
+        "type" : "button",
+        "name" : "Stop",
+        "disableClass" : "",
+        "class" : "int-width-half float-right",
+        "func" : {
+          "name" : "stop",
+          "parameters" : [
+            {
+              "type" : "Integer",
+              "value" : 0
+            }
+          ]
+        }
+      }, {
+        "type" : "button",
+        "name" : "Export",
+        "disableClass" : "",
+        "class" : "int-width-half export-button",
+        "func" : {
+          "name" : "export",
+          "parameters" : [
+            {
+              "type" : "Integer",
+              "value" : 0
+            }
+          ]
+        }
+      }, {
+        "type" : "checkbox",
+        "name" : "Loop",
+        "selected" : 0,
+        "class" : "float-right width-initial",
+        "disableClass" : "",
+        "func" : {
+          "name" : "setLoop",
+          "parameters" : [
+            {
+              "type" : "Integer",
+              "value" : "@VALUE@"
+            }
+          ]
+        }
+      },
+      {
+        "type" : "checkbox",
+        "name" : "Reference",
+        "selected" : 0,
+        "class" : "float-right width-initial",
+        "triggerOnStart" : 0,
+        "disableClass" : "",
+        "func" : {
+          "name" : "setReference",
+          "parameters" : [
+            {
+              "type" : "Integer",
+              "value" : "@VALUE@"
+            }
+          ]
+        }
+      },
+      {
+        "type" : "slider",
+        "name" : "Gain",
+        "minValue" : 0,
+        "maxValue" : 3,
+        "defaultValue" : 1,
+        "step" : 0.01,
+        "orientation" : "horizontal",
+        "disableClass" : "",
+        "func" : {
+          "name" : "setGain",
+          "parameters" : [
+            {
+              "type" : "Integer",
+              "value" : "@VALUE@"
+            }
+          ]
+        }
+      },
+      {
+        "type" : "waveform-static",
+        "name" : "Waveform",
+        "channel" : 0
+      }
+    ]
+  ]
+}

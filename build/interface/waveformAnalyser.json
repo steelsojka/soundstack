@@ -1,0 +1,13 @@
+{
+  "version" : "@VERSION@",
+  "interface" : 
+  [
+    [
+      {
+        "type" : "waveform",
+        "name" : "Waveform",
+        "channel" : 0
+      }
+    ]
+  ]
+}

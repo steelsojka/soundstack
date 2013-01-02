@@ -1,0 +1,27 @@
+{
+  "version" : "@VERSION@",
+  "interface" : 
+  [
+    [
+      {
+        "type" : "slider",
+        "name" : "Gain",
+        "minValue" : 0,
+        "maxValue" : 1000,
+        "defaultValue" : 0,
+        "step" : 0.1,
+        "orientation" : "horizontal",
+        "disableClass" : "",
+        "func" : {
+          "name" : "setAmount",
+          "parameters" : [
+            {
+              "type" : "Integer",
+              "value" : "@VALUE@"
+            }
+          ]
+        }
+      }
+    ]
+  ]
+}

@@ -1,0 +1,1 @@
+define(["views/NavigationView","views/RightPaneView","models/SettingsModel","views/SettingsView","models/StackCollection"],function(e,t,n,r,i){var s=Backbone.View.extend({initialize:function(){_.bindAll(this);var s=this,o=new n,u=new i;new t({model:s.model,stack:u}),new e({model:s.model,settings:o,stack:u}),new r({model:o,$container:$(this.el)})},render:function(){}});return s});

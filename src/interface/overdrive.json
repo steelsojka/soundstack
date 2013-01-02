@@ -1,0 +1,63 @@
+{
+  "version" : "@VERSION@",
+  "interface" :
+  [
+    [
+      {
+        "type" : "slider",
+        "name" : "Drive",
+        "minValue" : 0.01,
+        "maxValue" : 1,
+        "defaultValue" : 0.3,
+        "step" : 0.01,
+        "orientation" : "horizontal",
+        "disableClass" : "",
+        "func" : {
+          "name" : "setDrive",
+          "parameters" : [
+            {
+              "type" : "Integer",
+              "value" : "@VALUE@"
+            }
+          ]
+        }
+      }, {
+        "type" : "slider",
+        "name" : "Tone",
+        "minValue" : 0,
+        "maxValue" : 10000,
+        "defaultValue" : 10000,
+        "step" : 1,
+        "orientation" : "horizontal",
+        "disableClass" : "",
+        "func" : {
+          "name" : "setTone",
+          "parameters" : [
+            {
+              "type" : "Integer",
+              "value" : "@VALUE@"
+            }
+          ]
+        }
+      }, {
+        "type" : "slider",
+        "name" : "Output Gain",
+        "minValue" : 0,
+        "maxValue" : 2,
+        "defaultValue" : 1,
+        "step" : 0.01,
+        "orientation" : "horizontal",
+        "disableClass" : "",
+        "func" : {
+          "name" : "setGain",
+          "parameters" : [
+            {
+              "type" : "Integer",
+              "value" : "@VALUE@"
+            }
+          ]
+        }
+      }
+    ]
+  ]
+}

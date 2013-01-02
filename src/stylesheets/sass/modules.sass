@@ -1,0 +1,333 @@
+@import "mixins", "globals"
+
+.stack-module
+  width: 100%
+  position: relative
+  background-image: url(../../images/module_texture.jpg)
+  @include border-radius(10px)
+  color: #FFFFFF
+  overflow: hidden
+  padding: 0px 45px
+  // @include transition(height 0.3s ease-in-out)
+  @include box-sizing(border-box)
+  border-bottom: solid 4px rgba(0,0,0,0.65)
+  .bypassFx
+    position: absolute
+    right: 135px
+    top: 19px
+    z-index: 10
+  .ui-controls
+    padding: $module-collapsed-height + px 0 0 0
+  .module-name
+    float: left
+    font-family: Audiowide
+    line-height: $module-collapsed-height + px
+    text-transform: uppercase
+    text-shadow: 0 2px 2px rgba(0,0,0,0.9)
+  .remove
+    color: #FFFFFF
+    position: absolute
+    right: 80px
+    top: -5px
+    font-size: 28px
+  .handle
+    height: $module-collapsed-height + px
+    width: 100%
+    position: absolute
+    top: 0
+    left: 0
+    z-index: 0
+  .ui-component
+    float: left
+    padding: 5px 10px
+    width: 100%
+    position: relative
+    @include box-sizing(border-box)
+    .slider-tooltip
+      position: absolute
+      padding: 5px
+      top: -35px
+      font-size: 10px
+      z-index: 100
+      background-color: rgb(50,50,50)
+      border: 1px solid #FFFFFF
+      opacity: 0
+      @include transition(opacity 0.15s linear)
+      @include border-radius(5px)
+      @include shadow(0 0 5px rgba(0,0,0,0.7))
+    .slider-input
+      position: absolute
+      padding: 5px
+      width: 25px
+      height: 15px
+      top: 0px
+      font-size: 10px
+      z-index: 100
+      background-color: rgb(50,50,50)
+      border: 1px solid #FFFFFF
+      color: #FFFFFF
+    .ui-name
+      font-family: Audiowide
+      color: #FFFFFF
+      text-align: left
+      margin: 5px 0 0 0
+      text-shadow: 0 1px 1px rgba(0,0,0,0.9)
+    .ui-select > select
+      width: 100%
+    .ui-meter > div,
+      position: relative
+      height: $meter-thickness
+      overflow: hidden
+      .meter-led
+        position: absolute
+        width:  3.125%
+        background-color: #FFFF00
+      .meter
+        left: -100%
+        @include transition(all 0.025s linear)
+      // @include border-radius(10px)
+    .ui-meter > div > canvas,
+    .ui-meter > div > div,
+      width: 100%
+      height: $meter-thickness
+      position: absolute
+      // @include border-radius(10px)
+    .ui-meter > div > div
+      z-index: 20
+    .ui-meter > div > canvas
+      z-index: 10
+    .ui-reduction
+      width: 100%
+      div
+        position: relative
+        overflow: hidden
+        height: $reduction-thickness
+        canvas,
+        div
+          position: absolute
+          width: 100%
+          height: $reduction-thickness
+        .counter
+          line-height: $reduction-thickness
+          margin: 0 0 0 5px
+        canvas
+          z-index: 10
+        div
+          z-index: 20
+    .ui-spectrum
+      position: relative
+    .ui-spectrum > canvas
+      width: 100%
+      height: $spectrum-height
+    .ui-spectrum > div
+      width: 100%
+      height: $spectrum-height
+      position: absolute
+      z-index: 10
+      top: 0
+      left: 0
+    .ui-waveform-static
+      div > canvas,
+      div > .frosted-glass
+        width: 100%
+        position: absolute
+        height: $waveform-height
+        // @include border-radius(10px)
+      div
+        position: relative
+        height: $waveform-height
+      .waveform-status
+        position: absolute
+        line-height: $waveform-height
+        margin: 0 0 0 10px
+        font-family: $main-font
+        color: "#DBDBDB" !important
+        opacity: 0.5
+    .ui-indicator
+      width: 25px
+      height: 25px
+      position: relative
+      canvas, div
+        @include border-radius(25px)
+        position: absolute
+        width: 100%
+        height: 100%
+
+  .active-toggle
+    position: absolute
+    right: 60px
+    top: 6px
+    z-index: 10
+  .ui-component:last-child
+    margin-bottom: 15px
+
+.power-switch
+  width: 29px
+  height: 35px
+  background-size: 60px 35px
+  background-image: url(../../images/power_switch.png)
+  cursor: pointer
+  @include border-radius(5px)
+.power-switch.on
+  background-position: 29px 0
+.power-switch.off
+  background-position: 0 0
+.stack-module.collapsed
+  height: $module-collapsed-height + px
+
+.module-menu
+  position: absolute
+  right: 98px
+  top: 14px
+  height: 30px
+  width: 25px
+  z-index: 10
+  div
+    width: 100%
+    height: 4px
+    @include border-radius(4px)
+    margin-bottom: 4px
+    background-color: #FFFFFF
+    // width: 50px
+    // height: 50px
+  select
+    position: absolute
+    cursor: pointer
+    top: 0
+    left: 0
+    width: 25px
+    height: 30px
+    min-width: 30px
+    opacity: 0
+
+.arrow-box
+  position: relative
+  z-index: 10
+  height: $module-collapsed-height + px
+  float: left
+  padding: 0 5px
+
+.arrow-box.collapsed > div
+  border: solid transparent
+  height: 0
+  width: 0
+  position: relative
+  top: $module-collapsed-height / 2 - 9 + px
+  pointer-events: none
+  border-color: rgba(213, 213, 213, 0)
+  border-left-color: #d5d5d5
+  border-width: 8px
+
+.arrow-box.uncollapsed > div
+  border: solid transparent
+  height: 0
+  width: 0
+  position: relative
+  top: $module-collapsed-height / 2 - 5 + px
+  right: 3px
+  pointer-events: none
+  border-color: rgba(213, 213, 213, 0)
+  border-top-color: #d5d5d5
+  border-width: 8px
+
+.ui-checkbox
+  text-align: right
+  .ui-name
+    display: inline-block
+    margin: 0 5px 0 0 !important
+  input
+    display: inline-block
+
+.ui-disable-class
+  opacity: 0.5 !important
+
+.ui-slider-handle
+  width: 45px !important
+  height: 25px !important
+  cursor: pointer !important
+  background: url(../../images/fader.png) no-repeat !important
+  background-size: 45px 25px !important
+  outline: none !important
+  @include shadow(0 0px 5px 1px rgba(0,0,0,0.5))
+
+.ui-slider
+  background: url(../../images/slider_track.jpg) !important
+  border-style: solid !important
+  border-color: #333 #333 #777 #333 !important
+  border-width: 1px !important
+  height: 12px
+  position: relative
+  @include border-radius(25px)
+  @include shadow(inset 0 1px 5px 0px rgba(0, 0, 0, .5), 0 1px 0 0px rgba(250, 250, 250, .5))
+
+.ui-slider-horizontal .ui-slider-range
+  @include border-radius(25px)
+  @include linear-gradient(bottom, rgb(255,255,255) 100%, rgb(100,100,100) 0%)
+  background-image: -webkit-gradient(linear, left bottom,left top, color-stop(1, rgb(255,255,255)),color-stop(0, rgb(200,200,200)))
+
+.ui-slider-horizontal .ui-slider-handle
+  top: -0.38em
+
+.ui-slider-handle.ui-state-focus,
+.ui-slider-handle.ui-state-default
+  border: none !important
+
+.ui-button
+  margin: 10px 0
+
+.ui-button > input[type=button]
+  width: 100%
+  @include shadow(0px 2px 0px rgba(80,80,80,1), 0px 6px 25px rgba(0,0,0,.7))
+  // background-color: #ededed
+  @include linear-gradient(top, #ededed 0%, #dfdfdf 100%)
+  @include border-radius(8px)
+  position: relative
+  color: rgba(40,40,40,1)
+  text-decoration: none
+  // background-color: rgba(240,240,240,1)
+  display: block
+  padding: 4px
+  // width: 160px
+  text-align: center
+  -webkit-transition: all .05s ease
+  -moz-transition: all .05s ease
+  -ms-transition: all .05s ease
+  -o-transition: all .05s ease
+  transition: all .05s ease
+
+// .ui-button > input[type=button]:hover 
+//   background-color: #dfdfdf
+//   @include linear-gradient(center top, #dfdfdf 5%, #ededed 100%)
+.ui-button > input[type=button]:active,
+.ui-button.pressed > input[type=button],
+.ui-button.pressed-red > input[type=button]
+  -webkit-box-shadow: 0px 1px 0px rgba(80,80,80,1), 0px 3px 6px rgba(0,0,0,.9)
+  -moz-box-shadow: 0px 1px 0px rgba(80,80,80,1), 0px 3px 6px rgba(0,0,0,.9)
+  box-shadow: 0px 1px 0px rgba(80,80,80,1), 0px 3px 6px rgba(0,0,0,.9)
+  position: relative
+  top: 1px
+
+.ui-button.pressed > input[type=button]
+  @include shadow(0px 1px 0px rgba(80,80,80,1), 0px 3px 6px rgba(0,0,0,.9), 0 0 30px 5px rgba(0, 200, 0, 0.4), inset 0 0 50px 0px rgba(0, 200, 0, 0.5))
+
+.ui-button.pressed-red > input[type=button]
+  @include shadow(0px 1px 0px rgba(80,80,80,1), 0px 3px 6px rgba(0,0,0,.9), 0 0 30px 5px rgba(255, 0, 0, 0.7), inset 0 0 50px 0px rgba(255, 0, 0, 0.7))
+
+
+.int-width-full input[type=button]
+  width: 100%
+
+.int-width-half
+  display: inline-block
+  width: 49% !important
+
+.export-button
+  display: inline-block
+  width: 25% !important
+  margin: 0 !important
+  padding: 0 10px !important
+  .ui-button
+    margin: 2px 0 5px 0
+
+.disable-meter
+  opacity: 0.5

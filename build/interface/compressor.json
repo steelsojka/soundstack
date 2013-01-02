@@ -1,0 +1,137 @@
+{
+  "version" : "@VERSION@",
+  "interface" :
+  [
+    [
+      {
+        "type" : "slider",
+        "name" : "Threshold",
+        "minValue" : -100,
+        "maxValue" : 0,
+        "defaultValue" : -24,
+        "step" : 0.1,
+        "orientation" : "horizontal",
+        "func" : {
+          "name" : "setThreshold",
+          "parameters" : [
+            {
+              "type" : "Float",
+              "value" : "@VALUE@"
+            }
+          ]
+        }
+      }, {
+        "type" : "slider",
+        "name" : "Ratio",
+        "minValue" : 1,
+        "maxValue" : 20,
+        "defaultValue" : 12,
+        "step" : 0.1,
+        "orientation" : "horizontal",
+        "disableClass" : "",
+        "func" : {
+          "name" : "setRatio",
+          "parameters" : [
+            {
+              "type" : "Float",
+              "value" : "@VALUE@"
+            }
+          ]
+        }
+      }, {
+        "type" : "slider",
+        "name" : "Attack",
+        "minValue" : 0,
+        "maxValue" : 1,
+        "defaultValue" : 0.01,
+        "step" : 0.01,
+        "orientation" : "horizontal",
+        "disableClass" : "",
+        "func" : {
+          "name" : "setAttack",
+          "parameters" : [
+            {
+              "type" : "Float",
+              "value" : "@VALUE@"
+            }
+          ]
+        }
+      }, {
+        "type" : "slider",
+        "name" : "Release",
+        "minValue" : 0,
+        "maxValue" : 1,
+        "defaultValue" : 0.250,
+        "step" : 0.01,
+        "orientation" : "horizontal",
+        "disableClass" : "",
+        "func" : {
+          "name" : "setRelease",
+          "parameters" : [
+            {
+              "type" : "Float",
+              "value" : "@VALUE@"
+            }
+          ]
+        }
+      }, {
+        "type" : "slider",
+        "name" : "Knee",
+        "minValue" : 0,
+        "maxValue" : 40,
+        "defaultValue" : 30,
+        "step" : 0.1,
+        "orientation" : "horizontal",
+        "disableClass" : "",
+        "func" : {
+          "name" : "setKnee",
+          "parameters" : [
+            {
+              "type" : "Float",
+              "value" : "@VALUE@"
+            }
+          ]
+        }
+      }, {
+        "type" : "slider",
+        "name" : "Input",
+        "minValue" : 0,
+        "maxValue" : 4,
+        "defaultValue" : 1,
+        "step" : 0.01,
+        "orientation" : "horizontal",
+        "disableClass" : "",
+        "func" : {
+          "name" : "setInputGain",
+          "parameters" : [
+            {
+              "type" : "Float",
+              "value" : "@VALUE@"
+            }
+          ]
+        }
+      }, {
+        "type" : "slider",
+        "name" : "Output",
+        "minValue" : 0,
+        "maxValue" : 4,
+        "defaultValue" : 1,
+        "step" : 0.01,
+        "orientation" : "horizontal",
+        "disableClass" : "",
+        "func" : {
+          "name" : "setOutputGain",
+          "parameters" : [
+            {
+              "type" : "Float",
+              "value" : "@VALUE@"
+            }
+          ]
+        }
+      }, {
+        "type" : "reduction",
+        "name" : "Reduction"
+      }
+    ]
+  ]
+}

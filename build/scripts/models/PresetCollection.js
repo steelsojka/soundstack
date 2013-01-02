@@ -1,0 +1,1 @@
+define([],function(){var e=Backbone.Collection.extend({initialize:function(){},load:function(e){var t=e.get("key");this.trigger("load",t)}});return e});
