@@ -41,7 +41,8 @@ define(function() {
                                      .on('mouseup', this.onMouseUp)
                                      .on('mousemove', this.onMouseMove)
                                      .on('mouseover', this.onMouseOver)
-                                     .on('mouseout', this.onMouseOut);
+                                     .on('mouseout', this.onMouseOut)
+                                     .on('dblclick', this.onDoubleClick);
 
     },
     build : function(argument) {
@@ -66,6 +67,11 @@ define(function() {
         x : e.clientX - rect.left,
         y : e.clientY - rect.top
       }
+    },
+    onDoubleClick : function(e) {
+      this.module.setPosition(0);
+      this.clearSelection();
+      this.clearProgress();
     },
     onMouseClick : function(e) {
       var pos = this._getMousePosition(e);
