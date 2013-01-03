@@ -179,6 +179,7 @@
     <div class="waveform-status">No audio loaded</div>
     <canvas height="300" width="300"></canvas>
     <canvas height="300" width="300"></canvas>
+    <canvas height="300" width="300"></canvas>
     <div class="frosted-glass"></div>
   </div>
 </script>

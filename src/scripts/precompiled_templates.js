@@ -257,7 +257,7 @@ return __p;
 stack_module_static_waveform : function(obj){
 var __t,__p='',__j=Array.prototype.join,print=function(){__p+=__j.call(arguments,'');};
 with(obj||{}){
-__p+='\n  <div>\n    <div class="waveform-status">No audio loaded</div>\n    <canvas height="300" width="300"></canvas>\n    <canvas height="300" width="300"></canvas>\n    <div class="frosted-glass"></div>\n  </div>\n';
+__p+='\n  <div>\n    <div class="waveform-status">No audio loaded</div>\n    <canvas height="300" width="300"></canvas>\n    <canvas height="300" width="300"></canvas>\n    <canvas height="300" width="300"></canvas>\n    <div class="frosted-glass"></div>\n  </div>\n';
 }
 return __p;
 },

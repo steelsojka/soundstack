@@ -16,6 +16,7 @@ function(BaseModule, AudioFile) {
       this.playFromPosition = 0;
       this.isPlaying = false;
       this.reference = false;
+      this.selection = {};
      
       var audioSource = new AudioFile(this.context);
       this.nodes.audioSource = audioSource;
@@ -70,6 +71,10 @@ function(BaseModule, AudioFile) {
     },
     setLoop : function(loop) {
       this.loop = loop;
+      if (this.isPlaying) {
+        this.pause();
+        this.play();
+      }
       // this.nodes.audioSource.setLoop.apply(this.nodes.audioSource, arguments);
     },
     setRate : function() {
@@ -81,6 +86,21 @@ function(BaseModule, AudioFile) {
         this.pause();
         this.play();
       }
+    },
+    setSelection : function(start, end) {
+      this.selection.start = start;
+      this.selection.end = end;
+      this.selection.set = true;
+      this.currentPosition = start;
+      if (this.isPlaying) {
+        this.pause();
+        this.play();
+      }
+    },
+    clearSelection : function() {
+      this.selection.start = 0;
+      this.selection.end = 0;
+      this.selection.set = false;
     },
     getDuration : function() {
       return this.duration;
@@ -96,6 +116,8 @@ function(BaseModule, AudioFile) {
     play : function() {
       if (!this._enablePlay || !this._enabled) return;
 
+      this.isStopped = false;
+
       if (this.isPlaying) {
         this.pause();
       } else {
@@ -103,7 +125,11 @@ function(BaseModule, AudioFile) {
         this.playFromPosition = this.currentPosition;
         this.lastFrameTime = 0;
         this.nodes.audioSource.unpause();
-        this.nodes.audioSource.start(0, this.currentPosition, this.duration - this.currentPosition);
+        if (this.selection.set) {
+          this.nodes.audioSource.start(0, this.currentPosition, this.selection.end - this.currentPosition);
+        } else {
+          this.nodes.audioSource.start(0, this.currentPosition, this.duration - this.currentPosition);
+        }
         this.isPlaying = true;
         this.trigger('play');
         requestAnimFrame(this.onFrame);
@@ -116,13 +142,19 @@ function(BaseModule, AudioFile) {
       this.trigger('pause');
     },
     onFrame : function() {
+      var end;
+
       if (this.isPlaying) {
+
         // this.currentPosition = this.playFromPosition + (this.context.currentTime - this.contextStartTime);
         this.currentPosition += ((this.context.currentTime - this.contextStartTime) - this.lastFrameTime) * this.getPlaybackRate();
         this.lastFrameTime = (this.context.currentTime - this.contextStartTime);
 
         requestAnimFrame(this.onFrame);
-        if (this.currentPosition >= this.duration) {
+        
+        end = this.selection.set ? this.selection.end : this.duration;
+
+        if (this.currentPosition >= end) {
           if (this.loop) {
             this.restartLoop();
           } else {
@@ -133,6 +165,9 @@ function(BaseModule, AudioFile) {
     },
     restartLoop : function() {
       this.stop();
+      if (this.selection.set) {
+        this.currentPosition = this.selection.start;
+      }
       this.play();
     },
     setGain : function(value) {
@@ -158,7 +193,8 @@ function(BaseModule, AudioFile) {
     },
     stop : function(event) {
       this.isPlaying = false;
-      this.currentPosition = 0;
+      this.isStopped = true;
+      this.currentPosition = this.selection.set ? this.selection.start : 0;
       this.playFromPosition = 0;
       this.nodes.audioSource.stop(0);
       this.trigger('stop');
