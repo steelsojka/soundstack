@@ -57,8 +57,12 @@ function(BaseModule, AudioFile) {
         self.onAudioDecode(e, callback);
       });
     },
-    importBuffer : function(buffers) {
-      this.nodes.audioSource.setSource(buffers, this.onAudioDecode);
+    importBuffer : function(buffers, callback) {
+      var self = this;
+
+      this.nodes.audioSource.setSource(buffers, function() {
+        self.onAudioDecode({}, callback);
+      });
     },
     onAudioDecode : function(e, callback) {
       this._enablePlay = true;
@@ -86,6 +90,13 @@ function(BaseModule, AudioFile) {
         this.pause();
         this.play();
       }
+    },
+    trimToSelection : function(callback) {
+      var self = this;
+
+      this.getSelectionBuffer(function(res) {
+        self.importBuffer(res.data.data, callback);
+      });
     },
     setSelection : function(start, end) {
       this.selection.start = start;
@@ -173,11 +184,48 @@ function(BaseModule, AudioFile) {
     setGain : function(value) {
       this.nodes.audioSource.setGain(value);
     },
-    export : function() {
-      var buffer = this.nodes.audioSource.getBuffer();
-      var buffers = [];
-      for (var i = 0; i < buffer.numberOfChannels; i ++) {
-        buffers.push(buffer.getChannelData(i));
+    exportSelection : function() {
+      var self = this;
+
+      this.getSelectionBuffer(function(res) {
+        self.export(res.data.data);
+      });
+    },
+    getSelectionBuffer : function(callback) {
+      var buffer = this.getBuffer();
+      var self = this;
+
+      var channelData = function() {
+        var array = [];
+        for (var i = 0; i < buffer.numberOfChannels; i++) {
+          array.push(buffer.getChannelData(i));
+        }
+        return array;
+      }();
+
+      worker.postMessage({
+        action : "get-selection-buffer",
+        data : channelData,
+        fps : buffer.length / buffer.duration,
+        start : this.selection.start,
+        end : this.selection.end
+      });
+
+      worker.onmessage = function(res) {
+        callback(res);
+        // console.log(res);
+        // if (res.data.action === "get-selection-buffer") {
+        //   self.export(res.data.data);
+        // }
+      };
+    },
+    export : function(buffers) {
+      if (!buffers) {
+        var buffer = this.nodes.audioSource.getBuffer();
+        var buffers = [];
+        for (var i = 0; i < buffer.numberOfChannels; i ++) {
+          buffers.push(buffer.getChannelData(i));
+        }
       }
       global_relay.trigger('get-recorder', function(recorder) {
         recorder.exportWAV(function(blob) {

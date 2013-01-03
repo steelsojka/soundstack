@@ -174,6 +174,26 @@
   <canvas height="300" width="300"></canvas>
 </script>
 
+<script id="waveform-menu-bar" type="text/template">
+  <div class="waveform-menu">
+    <div class="file-menu">
+      <div>File</div>
+      <select>
+        <option value="null">No action</option>
+        <option value="export">Export...</option>
+        <option value="export selection">Export selection...</option>
+      </select>
+    </div>
+    <div class="edit-menu">
+      <div>Edit</div>
+      <select>
+        <option value="null">No action</option>
+        <option value="trim to selection">Trim to selection</option>
+      </select>
+    </div>
+  </div>
+</script>
+
 <script id="stack-module-static-waveform" type="text/template">
   <div>
     <div class="waveform-status">No audio loaded</div>

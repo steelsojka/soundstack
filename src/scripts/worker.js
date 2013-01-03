@@ -6,6 +6,9 @@ self.onmessage = function(e) {
 		case "waveform-peaks":
 			data = calculateWaveformPeaks(e.data.data, e.data.width);
 			break;
+    case "get-selection-buffer":
+      data = getSelectionBuffer(e.data.data, e.data.start, e.data.end, e.data.fps);
+      break;
 		case "default":
 			data = {};
 	}
@@ -17,6 +20,24 @@ self.onmessage = function(e) {
 
 	self.postMessage(res);
 
+};
+
+var getSelectionBuffer = function(buffers, start, end, fps) {
+  var newBuffer, y;
+  var newData = [];
+  var startFrame = Math.round(start * fps);
+  var endFrame = Math.round(end * fps);
+
+  for (var i = 0, _len = buffers.length; i < _len; i++) {
+    newBuffer = [], y = 0;
+
+    for (var x = startFrame; x <= endFrame; x++) {
+      newBuffer[y++] = buffers[i][x];
+    }
+    newData.push(newBuffer);
+  }
+
+  return newData;
 };
 
 var calculateWaveformPeaks = function(data, width) {

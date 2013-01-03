@@ -11,9 +11,12 @@ define(function() {
       this.status = "No audio loaded";
 
       var template = env === "web" ? _.template($('#stack-module-static-waveform').html()) : templates.stack_module_static_waveform;
+      var menuTemplate = env === "web" ? _.template($('#waveform-menu-bar').html()) : templates.waveform_menu_bar;
+
       this.tooltipTemplate = env === "web" ? _.template($('#mouse-tooltip-template').html()) : templates.mouse_tooltip_template;
       
-      $el.html(template(this.component));
+      $el.append(menuTemplate());
+      $el.append(template(this.component));
       
       this.canvas          = $el.find('canvas')[0];
       this.overlayCanvas   = $el.find('canvas')[1];
@@ -27,6 +30,9 @@ define(function() {
       this.selection = {
         threshold : 2
       };
+
+      $el.find('.file-menu').on('change', this.onFileMenuChange);
+      $el.find('.edit-menu').on('change', this.onEditMenuChange);
 
       this.canvas.width = this.selectionCanvas.width = this.overlayCanvas.width = 4096;
 
@@ -264,10 +270,37 @@ define(function() {
         // lingrad.addColorStop(0.5, "#DBDBDB");
         // lingrad.addColorStop(1, "#F5F5F5");
 
-
         this.context.fillStyle = "#DBDBDB";
         this.context.fillRect(x, y, w, h);
     },
+    onFileMenuChange : function(e) {
+      switch(e.target.selectedOptions[0].value) {
+        case "export":
+          this.module.export();
+          break;
+        case "export selection":
+          this.module.exportSelection();
+          break;
+      }
+
+      e.target.selectedIndex = 0;
+    },
+    onEditMenuChange : function(e) {
+      var self = this;
+
+      switch(e.target.selectedOptions[0].value) {
+        case "trim to selection":
+          this.module.trimToSelection(function() {
+            self.clearSelection();
+            self.clearProgress();
+            self.module.clearSelection();
+            self.module.setPosition(0);
+          });
+          break;
+      }
+
+      e.target.selectedIndex = 0;
+    }
   });
 
   return WaveformStaticView;

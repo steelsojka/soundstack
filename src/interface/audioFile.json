@@ -46,20 +46,6 @@
           ]
         }
       }, {
-        "type" : "button",
-        "name" : "Export",
-        "disableClass" : "",
-        "class" : "int-width-half export-button",
-        "func" : {
-          "name" : "export",
-          "parameters" : [
-            {
-              "type" : "Integer",
-              "value" : 0
-            }
-          ]
-        }
-      }, {
         "type" : "checkbox",
         "name" : "Loop",
         "selected" : 0,
@@ -114,7 +100,7 @@
       {
         "type" : "slider",
         "name" : "Playback Rate",
-        "minValue" : 0.1,
+        "minValue" : 0.01,
         "maxValue" : 5.0,
         "defaultValue" : 1,
         "step" : 0.01,
