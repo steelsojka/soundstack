@@ -5,6 +5,7 @@
   var clearTimer;
   var ctrl = 17;
   var space = 32;
+  var shift = 16;
 
   var keys = [
     { codes : [ctrl, 82], event : "global-record"},
@@ -16,7 +17,8 @@
     { codes : [ctrl, 67], event : "global-collapse"},
     { codes : [ctrl, 65], event : "global-about"},
     { codes : [27], event : "global-exit"},
-    { codes : [ctrl, 90], event : "global-undo"}
+    { codes : [ctrl, 90], event : "global-undo"},
+    { codes : [ctrl, shift, 90], event : "global-redo"}
   ];
 
   $(window).on('keydown', function(e) {
