@@ -22,14 +22,31 @@ define(function() {
       module.enable();
       this.trigger('enabled');
     },
-    setSetting : function(name, value) {
+    setSetting : function(name, value, undo) {
       var settings = this.get('settings');
+      if (!undo) {
+        this.trigger('change:history');
+      }
       settings[name] = value;
       this.set('settings', settings);
     },
-    applySettings : function(settings) {
-      this.set('settings', settings, {silent: true});
-      this.trigger('change:settings');
+    initializeSetting : function(name, value) {
+      var settings = this.get('settings');
+      settings[name] = value;
+      this.set('settings', settings, {silent : true});
+    },
+    applySettings : function(settings, undo) {
+      var currentSettings = this.get('settings');
+
+      for (var key in settings) {
+        if (settings.hasOwnProperty(key)) {
+          currentSettings[key] = settings[key];
+        }
+      }
+
+      this.set('settings', currentSettings, {silent: true});
+      
+      this.trigger('change:settings', undo);
     },
     setCollapsed : function(value) {
       this.set({collapsed : value}, {silent:true});

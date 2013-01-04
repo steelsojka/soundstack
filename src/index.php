@@ -1,13 +1,14 @@
 <?php
   
-  $template_dump = true;
+  $template_dump = false;
   $js_includes = array(
     "library/jquery-1.8.2.min.js",
     "library/jquery-ui-1.9.1.custom.min.js",
     "library/jquery-sort.js",
     "library/underscore.js",
     "library/backbone.js",
-    "library/Recorder.js"
+    "library/Recorder.js",
+    "HistoryManager.js"
   );
 
 ?>

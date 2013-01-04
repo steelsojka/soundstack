@@ -15,7 +15,8 @@
     { codes : [ctrl, 69], event : "global-expand"},
     { codes : [ctrl, 67], event : "global-collapse"},
     { codes : [ctrl, 65], event : "global-about"},
-    { codes : [27], event : "global-exit"}
+    { codes : [27], event : "global-exit"},
+    { codes : [ctrl, 90], event : "global-undo"}
   ];
 
   $(window).on('keydown', function(e) {

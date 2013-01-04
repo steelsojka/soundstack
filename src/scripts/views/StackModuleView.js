@@ -259,7 +259,7 @@ function(SelectView, SliderView, CheckboxView, ButtonView, FileUploadView
                 .removeClass('hide');;
       }
     },
-    onSettingsChange : function() {
+    onSettingsChange : function(undo) {
       var settings = this.model.get('settings');
       var component;
       var setValue;
@@ -270,7 +270,7 @@ function(SelectView, SliderView, CheckboxView, ButtonView, FileUploadView
         });
         setValue = component.get('setValue');
         if (!_.isUndefined(setValue)) {
-          setValue(settings[key]);
+          setValue(settings[key], undo);
         }
       }
     },

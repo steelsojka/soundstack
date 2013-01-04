@@ -19,7 +19,7 @@ define(function() {
 
       this.$select.trigger('change');
     },
-    onSelectChange : function(e) {
+    onSelectChange : function(e, undo) {
       var func = this.component.func;
       var module = this.model.get('module');
       var v = e.target.value;
@@ -34,12 +34,12 @@ define(function() {
                   .compact()
                   .value();
 
-      this.model.setSetting(this.component.name.replace(" ", ""), this.select.selectedIndex);
+      this.model.setSetting(this.component.name.replace(" ", ""), this.select.selectedIndex, undo);
       module[func.name].apply(module, params);
     },
-    setValue : function(value) {
+    setValue : function(value, undo) {
       this.select.selectedIndex = value;
-      this.$select.trigger('change');
+      this.$select.trigger('change', undo);
     }
   });
 

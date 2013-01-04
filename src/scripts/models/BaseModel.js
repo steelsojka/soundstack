@@ -37,6 +37,9 @@ define(["models/ModuleInstanceModel"], function(ModuleInstanceModel) {
 
       instance = new ModuleInstanceModel(instanceObject);
       instance.id = _.uniqueId();
+
+      HistoryManager.register(instance);
+
       return instance;
     }
   });

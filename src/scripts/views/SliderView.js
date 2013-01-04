@@ -55,11 +55,16 @@ define(function() {
         start : function() {
           self.$tooltip.addClass('fade-in').removeClass('fade-out');
         },
-        stop : function() {
+        stop : function(e, ui) {
           self.$tooltip.removeClass('fade-in').addClass('fade-out');
+          self.onSliderStop(e, ui);
         }
       });
+      this.model.initializeSetting(this.component.name.replace(" ", ""), component.defaultValue);
       $el.data('slider')._trigger('slide', {}, {value : $el.data('slider').value()});
+    },
+    onSliderStop : function(e, ui) {
+      this.model.setSetting(this.component.name.replace(" ", ""), ui.value);
     },
     onSliderChange : function(e, ui) {
       var comp = this.component;
@@ -85,7 +90,6 @@ define(function() {
                     })
                   .value();
 
-      this.model.setSetting(this.component.name.replace(" ", ""), v);
       module[func.name].apply(module, params);
 
       var parsedV = !(this.$el.slider('option').step % 1) ? parseInt(v) : v.toFixed(2);

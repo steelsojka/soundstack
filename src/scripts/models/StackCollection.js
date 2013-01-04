@@ -242,6 +242,9 @@ function(ModuleInstanceModel, AudioContext, BaseModel, MasterOut) {
     },
     onRemove : function(module) {
       module.get('module').destroy();
+
+      HistoryManager.unregister(module);
+
       this.connectStack();
     },
     updateItemPosition : function(start, end) {
