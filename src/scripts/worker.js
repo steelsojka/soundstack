@@ -38,7 +38,7 @@ var normalizeBuffer = function(buffers) {
   for (i = 0, _len = buffers.length; i < _len; i++) {
     var newBuffer = [], buffer = buffers[i];
     for (var x = 0, _len2 = buffer.length; x < _len2; x++) {
-      newBuffer[x] = buffer[x] + factor;
+      newBuffer[x] = buffer[x] < 0 ? buffer[x] - factor : buffer[x] + factor;
     }
 
     newData.push(newBuffer);
