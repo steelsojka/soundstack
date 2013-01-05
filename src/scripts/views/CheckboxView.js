@@ -75,7 +75,7 @@ define(function() {
         this.$checkbox.trigger('change');
       }
     },
-    onCheckboxChange : function(e) {
+    onCheckboxChange : function(e, undo) {
       var func = this.component.func;
       var module = this.model.get('module');
       var v = e.target.checked;
@@ -89,12 +89,12 @@ define(function() {
                     })
                   .value();
 
-      this.model.setSetting(this.component.name.replace(" ", ""), v);
+      this.model.setSetting(this.component.name.replace(" ", ""), v, undo);
       module[func.name].apply(module, params);
     },
-    setValue : function(value) {
+    setValue : function(value, undo) {
       this.checkbox.checked = value;
-      this.$checkbox.trigger('change');
+      this.$checkbox.trigger('change', undo);
     }
   });
 

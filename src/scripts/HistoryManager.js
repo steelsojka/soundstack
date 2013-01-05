@@ -20,7 +20,7 @@
   };
 
   var _handleChange = function() {
-    HistoryManager.push(new Level(this));
+    HistoryManager.push (new Level(this), true);
   };
 
   var HistoryManager = {
@@ -31,11 +31,15 @@
     listen : function() {
       this.listening = true;
     },
-    push : function(level) {
+    push : function(level, clearRedos) {
       if (this.levels.length >= this.maxLevels) {
         this.levels.shift();
       }
       this.levels.push(level);
+
+      if (clearRedos) {
+        this.redoLevels = [];
+      }
     },
     pushRedo : function(level) {
       if (this.redoLevels.length >= this.maxLevels) {

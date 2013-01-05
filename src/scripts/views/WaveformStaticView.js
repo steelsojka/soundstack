@@ -297,6 +297,9 @@ define(function() {
             self.module.setPosition(0);
           });
           break;
+        case "normalize":
+          this.module.normalize();
+          break;
       }
 
       e.target.selectedIndex = 0;

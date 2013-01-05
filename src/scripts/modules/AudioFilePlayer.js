@@ -191,17 +191,20 @@ function(BaseModule, AudioFile) {
         self.export(res.data.data);
       });
     },
+    getChannelData : function() {
+      var array = [];
+      var buffer = this.getBuffer();
+
+      for (var i = 0; i < buffer.numberOfChannels; i++) {
+        array.push(buffer.getChannelData(i));
+      }
+      return array;
+    },
     getSelectionBuffer : function(callback) {
       var buffer = this.getBuffer();
       var self = this;
 
-      var channelData = function() {
-        var array = [];
-        for (var i = 0; i < buffer.numberOfChannels; i++) {
-          array.push(buffer.getChannelData(i));
-        }
-        return array;
-      }();
+      var channelData = this.getChannelData();
 
       worker.postMessage({
         action : "get-selection-buffer",
@@ -218,6 +221,13 @@ function(BaseModule, AudioFile) {
         //   self.export(res.data.data);
         // }
       };
+    },
+    normalize : function() {
+      worker.postMessage({
+        action : "normalize-buffer",
+        data : this.getChannelData()
+      });
+
     },
     export : function(buffers) {
       if (!buffers) {

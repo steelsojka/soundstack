@@ -1,14 +1,13 @@
 <?php
   
-  $template_dump = false;
+  $template_dump = true;
   $js_includes = array(
     "library/jquery-1.8.2.min.js",
     "library/jquery-ui-1.9.1.custom.min.js",
     "library/jquery-sort.js",
     "library/underscore.js",
     "library/backbone.js",
-    "library/Recorder.js",
-    "HistoryManager.js"
+    "library/Recorder.js"  
   );
 
 ?>
@@ -143,5 +142,6 @@ window.globals = {
     <?php include 'templates.php' ?>
   </div>
   <script type="text/javascript" src="scripts/HotKeys.js"></script>
+  <script type="text/javascript" src="scripts/HistoryManager.js"></script>
 </body>
 </html>

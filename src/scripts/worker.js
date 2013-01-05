@@ -9,6 +9,8 @@ self.onmessage = function(e) {
     case "get-selection-buffer":
       data = getSelectionBuffer(e.data.data, e.data.start, e.data.end, e.data.fps);
       break;
+    case "normalize-buffer":
+      data = normalizeBuffer(e.data.data);
 		case "default":
 			data = {};
 	}
@@ -19,6 +21,30 @@ self.onmessage = function(e) {
 	};
 
 	self.postMessage(res);
+
+};
+
+var normalizeBuffer = function(buffers) {
+  var prevMax = 0;
+  var newData = [];
+
+  for (var i = 0, _len = buffers.length; i < _len; i++) {
+    var max = Math.max.apply(Math, buffer);
+    max = prevMax < max ? max : prevMax;
+  }
+  
+  var factor = 1 - max;
+
+  for (i = 0, _len = buffers.length; i < _len; i++) {
+    var newBuffer = [], buffer = buffers[i];
+    for (var x = 0, _len2 = buffer.length; x < _len2; x++) {
+      newBuffer[x] = buffer[x] + factor;
+    }
+
+    newData.push(newBuffer);
+  }
+
+  return newData;
 
 };
 
