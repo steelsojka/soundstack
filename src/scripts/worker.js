@@ -11,6 +11,7 @@ self.onmessage = function(e) {
       break;
     case "normalize-buffer":
       data = normalizeBuffer(e.data.data);
+      break;
 		case "default":
 			data = {};
 	}
@@ -24,21 +25,38 @@ self.onmessage = function(e) {
 
 };
 
+var getMax = function(array) {
+  var max = 0;
+  var temp;
+
+  for (var i = 0, _len = array.length; i < _len; i++) {
+    var temp = array[i];
+    if (temp < 0) temp = -temp;
+    max = temp > max ? temp : max;
+  };
+
+  return max;
+};
+
 var normalizeBuffer = function(buffers) {
   var prevMax = 0;
   var newData = [];
+  var max = 0;
+  var chunkSize = 1000;
+  var chunk = 0;
 
   for (var i = 0, _len = buffers.length; i < _len; i++) {
-    var max = Math.max.apply(Math, buffer);
-    max = prevMax < max ? max : prevMax;
+      max = getMax(buffers[i]);
+      max = prevMax < max ? max : prevMax;
+      prevMax = max;
   }
   
-  var factor = 1 - max;
+  var factor = 1 / max;
 
   for (i = 0, _len = buffers.length; i < _len; i++) {
     var newBuffer = [], buffer = buffers[i];
     for (var x = 0, _len2 = buffer.length; x < _len2; x++) {
-      newBuffer[x] = buffer[x] < 0 ? buffer[x] - factor : buffer[x] + factor;
+      newBuffer[x] = buffer[x] * factor;
     }
 
     newData.push(newBuffer);

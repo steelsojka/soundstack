@@ -260,7 +260,7 @@ define(function() {
     },
     drawFrame: function (index, value, max) {
         var w = 1;
-        var h = Math.round(value * (this.canvas.height / max));
+        var h = Math.round(value * this.canvas.height);
 
         var x = index * w;
         var y = Math.round((this.canvas.height - h) / 2);

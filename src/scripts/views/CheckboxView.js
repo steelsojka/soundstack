@@ -72,7 +72,7 @@ define(function() {
           this.$checkbox.trigger('change');
         }
       } else {
-        this.$checkbox.trigger('change');
+        // this.$checkbox.trigger('change');
       }
     },
     onCheckboxChange : function(e, undo) {

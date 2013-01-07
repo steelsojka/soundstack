@@ -4,7 +4,6 @@
   $js_includes = array(
     "library/jquery-1.8.2.min.js",
     "library/jquery-ui-1.9.1.custom.min.js",
-    "library/jquery-sort.js",
     "library/underscore.js",
     "library/backbone.js",
     "library/Recorder.js"  
@@ -64,6 +63,9 @@ _.mixin({
     var s = parseInt(num, 10) + "";
     while (s.length < size) s = 0 + s;
     return s;
+  },
+  arrayTo32Float : function(array) {
+    return new Float32Array(array);
   }
 });
 

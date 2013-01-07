@@ -222,12 +222,31 @@ function(BaseModule, AudioFile) {
         // }
       };
     },
-    normalize : function() {
+    normalize : function(callback) {
+      var self = this;
+
+      worker.onmessage = function(e) {
+        self.importBuffer(_.map(e.data.data, _.arrayTo32Float), callback);
+      };
+
       worker.postMessage({
         action : "normalize-buffer",
         data : this.getChannelData()
       });
+    },
+    normalizeSelection : function(callback) {
+      var self = this;
+      this.getSelectionBuffer(function(e) {
 
+        worker.onmessage = function(e) {
+          self.importBuffer(_.map(e.data.data, _.arrayTo32Float), callback);
+        };
+
+        worker.postMessage({
+          action : "normalize-buffer",
+          data : e.data.data
+        });
+      })
     },
     export : function(buffers) {
       if (!buffers) {
