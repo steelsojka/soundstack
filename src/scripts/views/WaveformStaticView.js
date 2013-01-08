@@ -28,7 +28,7 @@ define(function() {
 
       this.mouse = {};
       this.selection = {
-        threshold : 2
+        threshold : 1
       };
 
       $el.find('.file-menu').on('change', this.onFileMenuChange);
@@ -225,7 +225,7 @@ define(function() {
       var x = this.selection.set ? this.selection.startTime * this.fps / this.fpp : 0;
 
       ctx.clearRect(0, 0, this.overlayCanvas.width, this.overlayCanvas.height);
-      ctx.fillStyle = 'rgba(255,255,255, 0.7)';
+      ctx.fillStyle = 'rgba(255,255,255, 0.6)';
       ctx.fillRect(x, 0, position - x, this.overlayCanvas.height);
 
     },

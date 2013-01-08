@@ -96,6 +96,8 @@ function(BaseModule, AudioFile) {
     trimToSelection : function(callback) {
       var self = this;
 
+      self.trigger('status-update', "Trimming selection...");
+
       this.getSelectionBuffer(function(res) {
         self.importBuffer(res.data.data, callback);
       });
@@ -119,6 +121,8 @@ function(BaseModule, AudioFile) {
       var self = this;
 
       if (!this.selection.set) return;
+
+      self.trigger('status-update', "Cutting selection...");
 
       worker.onmessage = function(res) {
         self.clipboard.buffer = res.data.data.cutBuffers;
