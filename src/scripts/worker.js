@@ -12,6 +12,12 @@ self.onmessage = function(e) {
     case "normalize-buffer":
       data = normalizeBuffer(e.data.data, e.data.start, e.data.end);
       break;
+    case "cut-buffer":
+      data = cutBuffer(e.data.data, e.data.start, e.data.end);
+      break;
+    case "insert-buffer":
+      data = insertBuffer(e.data.data, e.data.insertBuffer, e.data.start);
+      break;
 		case "default":
 			data = {};
 	}
@@ -63,6 +69,60 @@ var normalizeBuffer = function(buffers, start, end) {
   }
 
   return buffers;
+
+};
+
+var cutBuffer = function(buffers, start, end) {
+  var newLength, length = buffers[0].length, cutLength,
+      newData = [], cutBuffers = [];
+
+  start = Math.round(start);
+  end = Math.round(end);
+  cutLength = end - start;
+  newLength = length - cutLength;
+
+  for (var i = 0, _len = buffers.length; i < _len ; i++) {
+    var buffer = buffers[i], newBuffer = [], x = 0, cut = [], c = 0, k = 0;
+    for (var j = 0; j < newLength; j++) {
+      if (x >= start && x < end) {
+        cut[c] = buffer[x];
+        c++;
+      } else {
+        newBuffer[k] = buffer[x];
+        k++;
+      }
+      x++;
+    }
+    cutBuffers.push(cut);
+    newData.push(newBuffer);
+  }
+
+  return {buffers : newData, cutBuffers : cutBuffers};
+
+};
+
+var insertBuffer = function(buffers, insertBuffers, start) {
+  var newLength, length = buffers[0].length, newData = [], insertEnd;
+
+  start = Math.round(start);
+  newLength = length + insertBuffers[0].length;
+  insertEnd = start + insertBuffers[0].length;
+
+  for (var i = 0, _len = buffers.length; i < _len; i++) {
+    var buffer = buffers[i], newBuffer = [], k = 0, l = 0;
+    for (var j = 0; j < newLength; j++) {
+      if (j >= start && j < insertEnd) {
+        newBuffer[j] = insertBuffers[i][k];
+        k++;
+      } else {
+        newBuffer[j] = buffer[l];
+        l++;
+      }
+    }
+    newData.push(newBuffer);
+  }
+
+  return newData;
 
 };
 

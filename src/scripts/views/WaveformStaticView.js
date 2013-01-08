@@ -303,6 +303,15 @@ define(function() {
         case "normalize selection":
           this.module.normalizeSelection();
           break;
+        case "cut":
+          this.module.cutSelection();
+          break;
+        case "paste":
+          this.module.insertBuffer();
+          break;
+        case "copy":
+          this.module.copySelection();
+          break;
       }
 
       e.target.selectedIndex = 0;

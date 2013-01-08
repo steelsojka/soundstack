@@ -191,6 +191,9 @@
         <option value="trim to selection">Trim to selection</option>
         <option value="normalize">Normalize</option>
         <option value="normalize selection">Normalize selection</option>
+        <option value="cut">Cut</option>
+        <option value="copy">Copy</option>        
+        <option value="paste">Paste</option>
       </select>
     </div>
   </div>

@@ -9,15 +9,16 @@ function(BaseModule, AudioFile) {
       _.extend(this, Backbone.Events);
 
       this._super.apply(this, arguments);
-      this._enablePlay = false;
-      this.spectrumType = 2;
-      this.currentPosition = 0;
+      this._enablePlay      = false;
+      this.spectrumType     = 2;
+      this.currentPosition  = 0;
       this.contextStartTime = 0;
       this.playFromPosition = 0;
-      this.isPlaying = false;
-      this.reference = false;
-      this.selection = {};
-      this.SAMPLE_RATE = 44100;
+      this.isPlaying        = false;
+      this.reference        = false;
+      this.selection        = {};
+      this.clipboard        = {buffer : []};
+      this.SAMPLE_RATE      = 44100;
      
       var audioSource = new AudioFile(this.context);
       this.nodes.audioSource = audioSource;
@@ -114,6 +115,48 @@ function(BaseModule, AudioFile) {
       this.selection.end = 0;
       this.selection.set = false;
     },
+    cutSelection : function(callback) {
+      var self = this;
+
+      if (!this.selection.set) return;
+
+      worker.onmessage = function(res) {
+        self.clipboard.buffer = res.data.data.cutBuffers;
+        self.importBuffer(res.data.data.buffers, callback);
+      };
+
+      worker.postMessage({
+        action : "cut-buffer",
+        data : this.getChannelData(),
+        start : this.selection.start * this.SAMPLE_RATE,
+        end : this.selection.end * this.SAMPLE_RATE
+      });
+    },
+    copySelection : function() {
+      var self = this;
+
+      if (!this.selection.set) return;
+
+      this.getSelectionBuffer(function(res) {
+        self.clipboard.buffer = res.data.data;
+      });
+    },
+    insertBuffer : function(callback) {
+      var self = this;
+
+      if (this.clipboard.buffer.length === 0) return;
+
+      worker.onmessage = function(res) {
+        self.importBuffer(res.data.data, callback);
+      };
+
+      worker.postMessage({
+        action : "insert-buffer",
+        data : this.getChannelData(),
+        insertBuffer : this.clipboard.buffer,
+        start : this.currentPosition * this.SAMPLE_RATE
+      });
+    },
     getDuration : function() {
       return this.duration;
     },
@@ -123,6 +166,8 @@ function(BaseModule, AudioFile) {
     setReference : function(bool) {
       this.reference = bool;
       this.isPlaying = !bool;
+      this.pause();
+      this.play();
       this.trigger("reference-change", bool);
     },
     play : function() {
