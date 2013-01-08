@@ -10,7 +10,7 @@ self.onmessage = function(e) {
       data = getSelectionBuffer(e.data.data, e.data.start, e.data.end, e.data.fps);
       break;
     case "normalize-buffer":
-      data = normalizeBuffer(e.data.data);
+      data = normalizeBuffer(e.data.data, e.data.start, e.data.end);
       break;
 		case "default":
 			data = {};
@@ -25,12 +25,13 @@ self.onmessage = function(e) {
 
 };
 
-var getMax = function(array) {
+var getMax = function(array, start, end) {
   var max = 0;
   var temp;
+  var x = start;
 
-  for (var i = 0, _len = array.length; i < _len; i++) {
-    var temp = array[i];
+  for (var i = 0, _len = end - start; i < _len; i++) {
+    var temp = array[x++];
     if (temp < 0) temp = -temp;
     max = temp > max ? temp : max;
   };
@@ -38,15 +39,14 @@ var getMax = function(array) {
   return max;
 };
 
-var normalizeBuffer = function(buffers) {
+var normalizeBuffer = function(buffers, start, end) {
   var prevMax = 0;
-  var newData = [];
   var max = 0;
-  var chunkSize = 1000;
-  var chunk = 0;
+  end = Math.round(end);
+  start = Math.round(start);
 
   for (var i = 0, _len = buffers.length; i < _len; i++) {
-      max = getMax(buffers[i]);
+      max = getMax(buffers[i], start, end);
       max = prevMax < max ? max : prevMax;
       prevMax = max;
   }
@@ -54,15 +54,15 @@ var normalizeBuffer = function(buffers) {
   var factor = 1 / max;
 
   for (i = 0, _len = buffers.length; i < _len; i++) {
-    var newBuffer = [], buffer = buffers[i];
-    for (var x = 0, _len2 = buffer.length; x < _len2; x++) {
-      newBuffer[x] = buffer[x] * factor;
+    var _start = start;
+    var buffer = buffers[i];
+    for (var x = 0, _len2 = end - start; x < _len2; x++) {
+      buffer[_start] = buffer[_start] * factor;
+      _start++;
     }
-
-    newData.push(newBuffer);
   }
 
-  return newData;
+  return buffers;
 
 };
 

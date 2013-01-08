@@ -17,6 +17,7 @@ function(BaseModule, AudioFile) {
       this.isPlaying = false;
       this.reference = false;
       this.selection = {};
+      this.SAMPLE_RATE = 44100;
      
       var audioSource = new AudioFile(this.context);
       this.nodes.audioSource = audioSource;
@@ -231,22 +232,24 @@ function(BaseModule, AudioFile) {
 
       worker.postMessage({
         action : "normalize-buffer",
-        data : this.getChannelData()
+        data : this.getChannelData(),
+        start : 0,
+        end : this.getDuration() * this.SAMPLE_RATE
       });
     },
     normalizeSelection : function(callback) {
       var self = this;
-      this.getSelectionBuffer(function(e) {
+     
+      worker.onmessage = function(e) {
+        self.importBuffer(_.map(e.data.data, _.arrayTo32Float), callback);
+      };
 
-        worker.onmessage = function(e) {
-          self.importBuffer(_.map(e.data.data, _.arrayTo32Float), callback);
-        };
-
-        worker.postMessage({
-          action : "normalize-buffer",
-          data : e.data.data
-        });
-      })
+      worker.postMessage({
+        action : "normalize-buffer",
+        data : this.getChannelData(),
+        start : this.selection.start * this.SAMPLE_RATE,
+        end : this.selection.end * this.SAMPLE_RATE
+      });
     },
     export : function(buffers) {
       if (!buffers) {

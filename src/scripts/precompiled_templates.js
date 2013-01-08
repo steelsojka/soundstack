@@ -257,7 +257,7 @@ return __p;
 waveform_menu_bar : function(obj){
 var __t,__p='',__j=Array.prototype.join,print=function(){__p+=__j.call(arguments,'');};
 with(obj||{}){
-__p+='\n  <div class="waveform-menu">\n    <div class="file-menu">\n      <div>File</div>\n      <select>\n        <option value="null">No action</option>\n        <option value="export">Export...</option>\n        <option value="export selection">Export selection...</option>\n      </select>\n    </div>\n    <div class="edit-menu">\n      <div>Edit</div>\n      <select>\n        <option value="null">No action</option>\n        <option value="trim to selection">Trim to selection</option>\n        <option value="normalize">Normalize</option>\n      </select>\n    </div>\n  </div>\n';
+__p+='\n  <div class="waveform-menu">\n    <div class="file-menu">\n      <div>File</div>\n      <select>\n        <option value="null">No action</option>\n        <option value="export">Export...</option>\n        <option value="export selection">Export selection...</option>\n      </select>\n    </div>\n    <div class="edit-menu">\n      <div>Edit</div>\n      <select>\n        <option value="null">No action</option>\n        <option value="trim to selection">Trim to selection</option>\n        <option value="normalize">Normalize</option>\n        <option value="normalize selection">Normalize selection</option>\n      </select>\n    </div>\n  </div>\n';
 }
 return __p;
 },
@@ -321,4 +321,4 @@ __p+='\n  <div class="title">'+
 }
 return __p;
 },
- };
+ }; 

@@ -190,6 +190,7 @@
         <option value="null">No action</option>
         <option value="trim to selection">Trim to selection</option>
         <option value="normalize">Normalize</option>
+        <option value="normalize selection">Normalize selection</option>
       </select>
     </div>
   </div>

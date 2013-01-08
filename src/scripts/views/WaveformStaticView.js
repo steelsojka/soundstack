@@ -300,6 +300,9 @@ define(function() {
         case "normalize":
           this.module.normalize();
           break;
+        case "normalize selection":
+          this.module.normalizeSelection();
+          break;
       }
 
       e.target.selectedIndex = 0;
