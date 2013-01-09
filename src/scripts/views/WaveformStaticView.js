@@ -311,13 +311,6 @@ define(function() {
             self.module.setPosition(0);
           });
           break;
-        case "normalize":
-          if (this.selection.set) {
-            this.module.normalizeSelection();
-          } else {
-            this.module.normalize();
-          }
-          break;
         case "cut":
           this.module.cutSelection();
           break;
