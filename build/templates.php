@@ -10,7 +10,7 @@
       <option value="load">Load...</option>
       <option value="save">Save...</option>
       <option value="help">Help...</option>
-      <!--<option value="settings">Settings...</option>-->
+      <option value="settings">Settings...</option>
       <option value="about">About</option>
     </select>
   </div>
@@ -174,9 +174,41 @@
   <canvas height="300" width="300"></canvas>
 </script>
 
+<script id="waveform-menu-bar" type="text/template">
+  <div class="waveform-menu">
+    <div class="file-menu">
+      <div>File</div>
+      <select>
+        <option value="null">No action</option>
+        <option value="export">Export...</option>
+        <option value="export selection">Export selection...</option>
+      </select>
+    </div>
+    <div class="edit-menu">
+      <div>Edit</div>
+      <select>
+        <option value="null">No action</option>
+        <option value="trim to selection">Trim to selection</option>
+        <option value="cut">Cut</option>
+        <option value="copy">Copy</option>        
+        <option value="paste">Paste</option>
+      </select>
+    </div>
+     <div class="process-menu">
+      <div>Process</div>
+      <select>
+        <option value="null">No action</option>
+        <option value="normalize">Normalize</option>
+        <option value="adjust gain">Adjust Gain...</option>
+      </select>
+    </div>
+  </div>
+</script>
+
 <script id="stack-module-static-waveform" type="text/template">
   <div>
     <div class="waveform-status">No audio loaded</div>
+    <canvas height="300" width="300"></canvas>
     <canvas height="300" width="300"></canvas>
     <canvas height="300" width="300"></canvas>
     <div class="frosted-glass"></div>
@@ -184,10 +216,27 @@
 </script>
 
 <script id="settings-template" type="text/template">
+  <div class="popup-heading">Settings</div>
+  <div class="global-setting">
+    <label for="buffer-size">Buffer Size:</label>
+    <input class="glass-input" data-setting="bufferSize" id="buffer-size" type="text" value="<%= bufferSize %>" pattern="\d*"/>
+    <span class="small">* Requires a restart</span>
+  </div>
+  <!--<div class="global-setting">
+    <label for="buffer-size">Sample Rate:</label>
+    <input class="glass-input" data-setting="sampleRate" id="sample-rate" type="text" value="<%= sampleRate %>" pattern="\d*"/>
+    <span class="small">* Requires a restart</span>
+  </div>-->
 </script>
 
 <script id="preset-template" type="text/template">
   <%= presetName %>
+</script>
+
+<script id="mouse-tooltip-template" type="text/template">
+  <div id="mouse-tooltip">
+    <%= _.pad(minutes, 2) %>:<%= _.pad(seconds, 2) %>:<%= _.pad(milliseconds, 2) %>
+  </div>
 </script>
 
 <script id="about-template" type="text/template">

@@ -4,10 +4,9 @@
   $js_includes = array(
     "library/jquery-1.8.2.min.js",
     "library/jquery-ui-1.9.1.custom.min.js",
-    "library/jquery-sort.js",
     "library/underscore.js",
     "library/backbone.js",
-    "library/Recorder.js"
+    "library/Recorder.js"  
   );
 
 ?>
@@ -59,6 +58,14 @@ _.mixin({
   },
   inRange : function(value, min, max) {
     return value >= min ? value <= max ? value : max : min;
+  },
+  pad : function(num, size) {
+    var s = parseInt(num, 10) + "";
+    while (s.length < size) s = 0 + s;
+    return s;
+  },
+  arrayTo32Float : function(array) {
+    return new Float32Array(array);
   }
 });
 
@@ -84,6 +91,7 @@ window.globals = {
     <div id="right-pane-container">
       <div class="background-fade"></div>
     </div>
+    <div id="tooltip-container"></div>
   </div>
 
   <script type="text/javascript">
@@ -131,9 +139,11 @@ window.globals = {
     });
   </script>
 
+
   <div id="templates">
     <?php include 'templates.php' ?>
   </div>
   <script type="text/javascript" src="scripts/HotKeys.js"></script>
+  <script type="text/javascript" src="scripts/HistoryManager.js"></script>
 </body>
 </html>
