@@ -28,7 +28,8 @@ define(function() {
 
       this.mouse = {};
       this.selection = {
-        threshold : 1
+        threshold : 1,
+        duration : 0
       };
 
       $el.find('.file-menu').on('change', this.onFileMenuChange);
@@ -96,11 +97,22 @@ define(function() {
     },
     onMouseDown : function(e) {
       var pos = this._getMousePosition(e);
+      var time = this.module.getDuration() * (pos.x / $(this.canvas).width());
 
       this.mouse.pressed = true;
       this.mouse.startX = pos.x;
       this.mouse.startY = pos.y;
-      this.selection.tempStartTime = this.module.getDuration() * (pos.x / $(this.canvas).width());
+      
+      if (this.selection.set) {
+        if (time < this.selection.startTime + this.selection.duration / 2) {
+          this.selection.tempStartTime = this.selection.endTime;
+        } else if (time > this.selection.endTime - this.selection.duration / 2) {
+          this.selection.tempStartTime = this.selection.startTime;
+        }
+      } else {
+        this.selection.tempStartTime = time;
+      }
+
     },
     onMouseUp : function(e) {
       var pos = this._getMousePosition(e);
@@ -120,6 +132,7 @@ define(function() {
         }
 
         this.selection.set = true;
+        this.selection.duration = this.selection.endTime - this.selection.startTime;
 
         this.module.setSelection(this.selection.startTime, this.selection.endTime);
 
@@ -140,13 +153,13 @@ define(function() {
     onMouseMove : function(e) {
       var pos = this._getMousePosition(e);
       var distance = pos.x - this.mouse.startX;
-
+      var time = this.module.getDuration() * (pos.x / $(this.canvas).width());
 
       if (this.mouse.pressed) {
         this.mouse.distanceX = distance;
         
         if (distance > this.selection.threshold || distance < -this.selection.threshold) {
-          this.selection.tempEndTime = this.module.getDuration() * (pos.x / $(this.canvas).width())
+          this.selection.tempEndTime = time;
           this.drawSelection();
         }
       } else {
