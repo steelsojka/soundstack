@@ -34,6 +34,7 @@ define(function() {
 
       $el.find('.file-menu').on('change', this.onFileMenuChange);
       $el.find('.edit-menu').on('change', this.onEditMenuChange);
+      $el.find('.process-menu').on('change', this.onProcessMenuChange);
 
       this.canvas.width = this.selectionCanvas.width = this.overlayCanvas.width = 4096;
 
@@ -311,10 +312,11 @@ define(function() {
           });
           break;
         case "normalize":
-          this.module.normalize();
-          break;
-        case "normalize selection":
-          this.module.normalizeSelection();
+          if (this.selection.set) {
+            this.module.normalizeSelection();
+          } else {
+            this.module.normalize();
+          }
           break;
         case "cut":
           this.module.cutSelection();
@@ -324,6 +326,21 @@ define(function() {
           break;
         case "copy":
           this.module.copySelection();
+          break;
+      }
+
+      e.target.selectedIndex = 0;
+    },
+    onProcessMenuChange : function(e) {
+      var self = this;
+
+      switch(e.target.selectedOptions[0].value) {
+        case "normalize":
+          if (this.selection.set) {
+            this.module.normalizeSelection();
+          } else {
+            this.module.normalize();
+          }
           break;
       }
 
