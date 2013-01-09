@@ -13,15 +13,24 @@ define(['models/BaseModel'], function(BaseModel) {
     },
     onStopRecord : function(recorder) {
       var model = this.getModuleByName("Audio Player");
-      model.loadModule(function() {
-        global_relay.trigger("load-recorded-audio", model, function(module) {
-          recorder.getBuffer(function(buffers) {
+      var buffers = recorder.getBuffer(function(buffers) {
+        var isValid = false;
+
+        for (var i = 0, _len = buffers.length; i < _len; i++) {
+          if (!isValid) isValid = buffers[i].length > 0;
+        }
+
+        if (!isValid) return;
+
+        model.loadModule(function() {
+          global_relay.trigger("load-recorded-audio", model, function(module) {
             var _module = module.get('module');
             _module.importBuffer(buffers);
+            recorder.clear();
           });
-
         });
       });
+
     },
     getModuleByName : function(name) {
       return this.find(function(m) {

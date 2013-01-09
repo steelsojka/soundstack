@@ -66,7 +66,7 @@ define(function() {
       ctx.clearRect(0, 0, this.overlayCanvas.width, this.overlayCanvas.height);
     },
     onStatusUpdate : function(status) {
-      this.clearWaveform();
+      // this.clearWaveform();
       this.$el.find('.waveform-status').html(status);
     },
     _getMousePosition : function(e) {
@@ -329,11 +329,10 @@ define(function() {
 
       switch(e.target.selectedOptions[0].value) {
         case "normalize":
-          if (this.selection.set) {
-            this.module.normalizeSelection();
-          } else {
-            this.module.normalize();
-          }
+          this.module.normalize();
+          break;
+        case "adjust gain":
+          this.module.adjustGain();
           break;
       }
 

@@ -9,16 +9,17 @@ function(BaseModule, AudioFile) {
       _.extend(this, Backbone.Events);
 
       this._super.apply(this, arguments);
-      this._enablePlay      = false;
-      this.spectrumType     = 2;
-      this.currentPosition  = 0;
-      this.contextStartTime = 0;
-      this.playFromPosition = 0;
-      this.isPlaying        = false;
-      this.reference        = false;
-      this.selection        = {};
-      this.clipboard        = {buffer : []};
-      this.SAMPLE_RATE      = 44100;
+      this._enablePlay          = false;
+      this.spectrumType         = 2;
+      this.currentPosition      = 0;
+      this.contextStartTime     = 0;
+      this.playFromPosition     = 0;
+      this.isPlaying            = false;
+      this.reference            = false;
+      this.selection            = {};
+      this.clipboard            = {buffer : []};
+      this.gainAdjustmentFactor = 0.5;
+      this.SAMPLE_RATE          = 44100;
      
       var audioSource = new AudioFile(this.context);
       this.nodes.audioSource = audioSource;
@@ -154,6 +155,8 @@ function(BaseModule, AudioFile) {
         self.importBuffer(res.data.data, callback);
       };
 
+      this.trigger('status-update', 'Pasting...');
+
       worker.postMessage({
         action : "insert-buffer",
         data : this.getChannelData(),
@@ -237,6 +240,8 @@ function(BaseModule, AudioFile) {
     exportSelection : function() {
       var self = this;
 
+      this.trigger('status-update', 'Exporting selection...');
+
       this.getSelectionBuffer(function(res) {
         self.export(res.data.data);
       });
@@ -272,6 +277,9 @@ function(BaseModule, AudioFile) {
         // }
       };
     },
+    setGainAdjustment : function(value) {
+      this.gainAdjustmentFactor = value;
+    }, 
     normalize : function(callback) {
       var self = this;
 
@@ -279,26 +287,46 @@ function(BaseModule, AudioFile) {
         self.importBuffer(_.map(e.data.data, _.arrayTo32Float), callback);
       };
 
-      worker.postMessage({
-        action : "normalize-buffer",
-        data : this.getChannelData(),
-        start : 0,
-        end : this.getDuration() * this.SAMPLE_RATE
-      });
-    },
-    normalizeSelection : function(callback) {
-      var self = this;
-     
-      worker.onmessage = function(e) {
-        self.importBuffer(_.map(e.data.data, _.arrayTo32Float), callback);
-      };
+      this.trigger('status-update', 'Normalizing...');
 
       worker.postMessage({
         action : "normalize-buffer",
         data : this.getChannelData(),
-        start : this.selection.start * this.SAMPLE_RATE,
-        end : this.selection.end * this.SAMPLE_RATE
+        start : this.selection.set ? this.selection.start * this.SAMPLE_RATE : 0,
+        end : (this.selection.set ? this.selection.end : this.getDuration()) * this.SAMPLE_RATE
       });
+    },
+    // normalizeSelection : function(callback) {
+    //   var self = this;
+     
+    //   worker.onmessage = function(e) {
+    //     self.importBuffer(_.map(e.data.data, _.arrayTo32Float), callback);
+    //   };
+
+    //   worker.postMessage({
+    //     action : "normalize-buffer",
+    //     data : this.getChannelData(),
+    //     start : this.selection.start * this.SAMPLE_RATE,
+    //     end : this.selection.end * this.SAMPLE_RATE
+    //   });
+    // },
+    adjustGain : function(callback) {
+      var self = this;
+
+      worker.onmessage = function(e) {
+        self.importBuffer(_.map(e.data.data, _.arrayTo32Float), callback);
+      };
+
+      this.trigger('status-update', 'Adjusting gain...');
+
+      worker.postMessage({
+        action : "adjust-buffer-gain",
+        data : this.getChannelData(),
+        amount : this.gainAdjustmentFactor,
+        start : this.selection.set ? this.selection.start * this.SAMPLE_RATE : 0,
+        end : (this.selection.set ? this.selection.end : this.getDuration()) * this.SAMPLE_RATE
+      });
+
     },
     export : function(buffers) {
       if (!buffers) {
@@ -308,6 +336,9 @@ function(BaseModule, AudioFile) {
           buffers.push(buffer.getChannelData(i));
         }
       }
+
+      this.trigger('status-update', 'Exporting...');
+
       global_relay.trigger('get-recorder', function(recorder) {
         recorder.exportWAV(function(blob) {
           Recorder.forceDownload(blob);

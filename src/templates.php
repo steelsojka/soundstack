@@ -199,6 +199,7 @@
       <select>
         <option value="null">No action</option>
         <option value="normalize">Normalize</option>
+        <option value="adjust gain">Adjust Gain...</option>
       </select>
     </div>
   </div>

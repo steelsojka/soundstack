@@ -18,6 +18,9 @@ self.onmessage = function(e) {
     case "insert-buffer":
       data = insertBuffer(e.data.data, e.data.insertBuffer, e.data.start);
       break;
+    case "adjust-buffer-gain":
+      data = adjustBufferGain(e.data.data, e.data.amount, e.data.start, e.data.end);
+      break;
 		case "default":
 			data = {};
 	}
@@ -63,13 +66,30 @@ var normalizeBuffer = function(buffers, start, end) {
     var _start = start;
     var buffer = buffers[i];
     for (var x = 0, _len2 = end - start; x < _len2; x++) {
-      buffer[_start] = buffer[_start] * factor;
+      var amount = buffer[_start] * factor;
+      buffer[_start] = amount > 1 ? 1 : amount < -1 ? -1 : amount;
       _start++;
     }
   }
 
   return buffers;
 
+};
+
+var adjustBufferGain = function(buffers, factor, start, end) {
+  end = Math.round(end);
+  start = Math.round(start);
+  
+  for (i = 0, _len = buffers.length; i < _len; i++) {
+    var _start = start;
+    var buffer = buffers[i];
+    for (var x = 0, _len2 = end - start; x < _len2; x++) {
+      buffer[_start] = buffer[_start] * factor;
+      _start++;
+    }
+  }
+
+  return buffers;
 };
 
 var cutBuffer = function(buffers, start, end) {
