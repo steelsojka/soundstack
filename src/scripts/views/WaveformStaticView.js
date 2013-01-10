@@ -54,6 +54,7 @@ define(function() {
 
     },
     build : function(argument) {
+      this.clearWaveform();
       this.buffer = this.module.getBuffer();
       this.getPeaks();
     },
@@ -65,9 +66,12 @@ define(function() {
       var ctx = this.overlayContext;
       ctx.clearRect(0, 0, this.overlayCanvas.width, this.overlayCanvas.height);
     },
-    onStatusUpdate : function(status) {
+    onStatusUpdate : function(status, percent) {
       // this.clearWaveform();
       this.$el.find('.waveform-status').html(status);
+      if (percent >= 100) {
+        this.clearStatus();
+      }
     },
     _getMousePosition : function(e) {
       var rect = this.canvas.getBoundingClientRect();
@@ -191,27 +195,44 @@ define(function() {
     getPeaks : function() {
       var self = this;
       var buffer = this.module.getBuffer();
+      var index = 0;
 
       var channelData = this.module.getChannelData();
 
       this.fps = buffer.length / buffer.duration;
       this.fpp = channelData[0].length / this.canvas.width;
 
-      worker.onmessage = function(res) {
-        if (res.data.action === "waveform-peaks") {
-          self.peaks = res.data.data;
-          self.draw(res.data.data);
-          self.clearStatus();
-        } else if (res.data.action === "progress") {
-          self.module.trigger('status-update', "Building waveform... " + res.data.percent + "%");
-        }
-      };
+      // worker.onmessage = function(res) {
+      //   if (res.data.action === "waveform-peaks") {
+      //     self.peaks = res.data.data;
+      //     self.draw(res.data.data);
+      //     self.clearStatus();
+      //   } else if (res.data.action === "progress") {
+      //     self.module.trigger('status-update', "Building waveform... " + res.data.percent + "%");
+      //   }
+      // };
 
-      worker.postMessage({
+      WorkerManager.delegateJob({
         action : "waveform-peaks",
         data : channelData,
-        width : this.canvas.width
+        split : channelData[0].length / 4096,
+        width : 4096,
+        onReconstruct : function(data) {
+          self.peaks = Array.prototype.concat([], data);
+          self.draw(self.peaks);
+          self.clearStatus();
+        },
+        onProgress : function(percent, data) {
+          self.module.trigger('status-update', "Building waveform... " + percent + "%", percent);
+          self.drawFrame(index++, data.data[0]);
+        }
       });
+
+      // worker.postMessage({
+      //   action : "waveform-peaks",
+      //   data : channelData,
+      //   width : this.canvas.width
+      // });
 
       this.onStatusUpdate('Building waveform...');
     },

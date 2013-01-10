@@ -24,6 +24,8 @@
 
   WorkerQueue.prototype = {
     push : function(job) {
+      job.workerJob.totalProcesses += 1;
+      job.workerJob.remainingProcesses += 1;
       this.queue.push(job);
       this.isComplete = false;
     },
@@ -60,8 +62,11 @@
   var WorkerJob = function(options) {
 
     this.onReconstruct = function() {};
+    this.onProgress = function() {};
     this.isComplete = true;
     this.returnQueue = [];
+    this.totalProcesses = 0;
+    this.remainingProcesses = 0;
     this.outstandingProcesses = 0;
 
     for (var key in options) {
@@ -91,24 +96,26 @@
         this.isComplete = true;
         this.reconstruct();
       }
+
     },
     pushReturn : function(data) {
       this.returnQueue.push(data);
       this.outstandingProcesses -= 1;
+      this.remainingProcesses -= 1;
       this.checkJobStatus();
+      this.onProgress(~~(((this.totalProcesses - this.remainingProcesses) / this.totalProcesses) * 100), data);
     },
     reconstruct : function() {
       this.returnQueue.sort(function(a, b) {
         return a.processID - b.processID;
       });
 
-      this.onReconstruct(this.returnQueue);
+      this.onReconstruct(_.pluck(this.returnQueue, "data"));
     }
   };
 
   var WorkerManager = function() {
     this.WORKER_COUNT = 16;
-    this.BUFFER_SPLIT = 500;
     this.WORKER_URL = "scripts/worker.js";
     this.workers = [];
     this.queues = [];
@@ -123,15 +130,15 @@
   };
 
   WorkerManager.prototype = {
-    splitBuffers : function(buffers) {
+    splitBuffers : function(buffers, split) {
       var _buffers = [];
 
       for (var x = 0, _len = buffers.length; x < _len; x++) {
         var splits = [], buffer = buffers[x];
 
-        for (var i = 0, j = buffer.length; i < j; i += this.BUFFER_SPLIT) {
+        for (var i = 0, j = buffer.length; i < j; i += split) {
           splits.push({
-            data : Array.prototype.slice.call(buffer, i, i + this.BUFFER_SPLIT),
+            data : Array.prototype.slice.call(buffer, i, i + split),
             _pos : i
           });
         }
@@ -144,23 +151,26 @@
     getQueues : function() {
       return this.queues;
     },
-    delegateJob : function(_job, reconstruct) {
+    delegateJob : function(options) {
       var splitCount, worker = 0, id = 0;
       
       var workerJob = new WorkerJob({
-        onReconstruct : reconstruct,
+        onReconstruct : options.onReconstruct,
+        onProgress : options.onProgress,
         id : ~~(Math.random() * 10000),
         manager : this
       });
 
-      buffers = this.splitBuffers(_job.data);
+      buffers = this.splitBuffers(options.data, options.split);
       
-      delete _job.data;
+      delete options.data;
+      delete options.onReconstruct;
+      delete options.onProgress;
 
       splitCount = buffers[0].length;
 
       for (var i = 0; i < splitCount; i++) {
-        var job = clone(_job);
+        var job = clone(options);
         job.data = [];
         for (var x = 0; x < buffers.length; x++) {
           job.data.push(buffers[x][i].data);

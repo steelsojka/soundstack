@@ -200,25 +200,16 @@ var getSelectionBuffer = function(buffers, _pos, start, end, fps) {
 var calculateWaveformPeaks = function(data, width) {
   var fpp = data[0].length / width;
   var slice = Array.prototype.slice;
+  var bit = 0;
 
-  var newData = [];
-
-  for (var i = 0, _len = width; i < _len; i++) {
-    var bit = 0;
-    for (var x = 0, _len2 = data.length; x < _len2; x++) {
-      var values = slice.call(data[x], i * fpp, (i + 1) * fpp);
-      var peak = Math.max.apply(Math, values.map(Math.abs));
-      if (typeof peak === "undefined") {
-        peak = 0;
-      }
-      bit += peak;
+  for (var x = 0, _len2 = data.length; x < _len2; x++) {
+    var values = data[x];
+    var peak = Math.max.apply(Math, values.map(Math.abs));
+    if (typeof peak === "undefined") {
+      peak = 0;
     }
-    newData[i] = bit;
-    self.postMessage({
-      action : "progress",
-      percent : ~~(i / width * 100)
-    });
+    bit += peak;
   }
 
-  return newData;
+  return [bit];
 };

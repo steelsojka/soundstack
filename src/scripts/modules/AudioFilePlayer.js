@@ -275,12 +275,14 @@ function(BaseModule, AudioFile) {
       }
       return array;
     },
+    onProgress : function(message, percent) {
+      this.trigger('status-update', message + " " + percent + "%", percent);
+    },
     reconstructBuffer : function(data) {
-      var buffers = _.pluck(data, "data");
       var channel1 = [];
       var channel2 = [];
 
-      _.each(buffers, function(buff) {
+      _.each(data, function(buff) {
         channel1.push(buff[0]);
         channel2.push(buff[1]);
       });
@@ -301,9 +303,14 @@ function(BaseModule, AudioFile) {
         fps : buffer.length / buffer.duration,
         start : this.selection.start,
         end : this.selection.end,
-        data : channelData
-      }, function(data) {
-        callback(self.reconstructBuffer(data));
+        data : channelData,
+        split : 500,
+        onReconstruct : function(data) {
+          callback(self.reconstructBuffer(data));
+        },
+        onProgress : function(percent) {
+          self.onProgress("Getting selection...", percent);
+        }
       });
 
       // worker.postMessage({
