@@ -192,30 +192,26 @@ define(function() {
       var self = this;
       var buffer = this.module.getBuffer();
 
-      var channelData = function() {
-        var array = [];
-        for (var i = 0; i < buffer.numberOfChannels; i++) {
-          array.push(buffer.getChannelData(i));
-        }
-        return array;
-      }();
+      var channelData = this.module.getChannelData();
 
       this.fps = buffer.length / buffer.duration;
       this.fpp = channelData[0].length / this.canvas.width;
-
-      worker.postMessage({
-        action : "waveform-peaks",
-        data : channelData,
-        width : this.canvas.width
-      });
 
       worker.onmessage = function(res) {
         if (res.data.action === "waveform-peaks") {
           self.peaks = res.data.data;
           self.draw(res.data.data);
           self.clearStatus();
+        } else if (res.data.action === "progress") {
+          self.module.trigger('status-update', "Building waveform... " + res.data.percent + "%");
         }
       };
+
+      worker.postMessage({
+        action : "waveform-peaks",
+        data : channelData,
+        width : this.canvas.width
+      });
 
       this.onStatusUpdate('Building waveform...');
     },

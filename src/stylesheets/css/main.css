@@ -511,8 +511,9 @@ body {
       line-height: 150px;
       margin: 0 0 0 10px;
       font-family: "Audiowide", Arial, sans-serif;
-      color: "#DBDBDB" !important;
-      opacity: 0.5; }
+      color: #c4c4c4 !important;
+      opacity: 1;
+      text-shadow: 1px 1px 1px black; }
     .stack-module .ui-component .ui-indicator {
       width: 25px;
       height: 25px;
