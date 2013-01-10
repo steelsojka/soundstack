@@ -56,6 +56,7 @@
     },
     onQueueEmpty : function() {
       this.isComplete = true;
+      this.worker.terminate();
     }
   };
 
@@ -121,12 +122,7 @@
     this.queues = [];
     this.currentJobID = 0;
 
-    for (var i = 0, _len = this.WORKER_COUNT; i < _len; i++) {
-      var worker = new Worker(this.WORKER_URL);
-
-      this.workers.push(worker);
-      this.queues.push(new WorkerQueue(worker, this));
-    }
+    
   };
 
   WorkerManager.prototype = {
@@ -152,7 +148,10 @@
       return this.queues;
     },
     delegateJob : function(options) {
-      var splitCount, worker = 0, id = 0;
+      var splitCount, worker_num = 0, id = 0;
+      
+      this.workers = [];
+      this.queues = [];
       
       var workerJob = new WorkerJob({
         onReconstruct : options.onReconstruct,
@@ -160,6 +159,13 @@
         id : ~~(Math.random() * 10000),
         manager : this
       });
+
+      for (var i = 0, _len = this.WORKER_COUNT; i < _len; i++) {
+        var worker = new Worker(this.WORKER_URL);
+
+        this.workers.push(worker);
+        this.queues.push(new WorkerQueue(worker, this));
+      }
 
       buffers = this.splitBuffers(options.data, options.split);
       
@@ -179,13 +185,13 @@
         job.processID = ++id;
         job.jobID = workerJob.id;
 
-        this.queues[worker++].push({
+        this.queues[worker_num++].push({
           postData : job,
           jobID : workerJob.id,
           workerJob : workerJob
         });
 
-        if (worker >= this.WORKER_COUNT) worker = 0;
+        if (worker_num >= this.WORKER_COUNT) worker_num = 0;
       }
 
       for (i = 0, _len = splitCount < this.WORKER_COUNT ? splitCount : this.WORKER_COUNT; i < _len; i++) {
