@@ -57,6 +57,7 @@
     onQueueEmpty : function() {
       this.isComplete = true;
       this.worker.terminate();
+      this.manager.removeQueue(this);
     }
   };
 
@@ -127,8 +128,12 @@
   };
 
   WorkerManager.prototype = {
-    splitBuffers : function(buffers, split) {
+    removeQueue : function(queue) {
+      this.queues = _.without(this.queues, queue);
+    },
+    splitBuffers : function(data, split) {
       var _buffers = [];
+      var buffers = data.data;
 
       for (var x = 0, _len = buffers.length; x < _len; x++) {
         var splits = [], buffer = buffers[x];
@@ -136,7 +141,9 @@
         for (var i = 0, j = buffer.length; i < j; i += split) {
           splits.push({
             data : Array.prototype.slice.call(buffer, i, i + split),
-            _pos : i
+            altData : {
+              _pos : i
+            }
           });
         }
         
@@ -162,38 +169,46 @@
     },
     processJob : function() {
       var splitCount, worker_num = 0, id = 0;
-      
+
       if (this.jobInProgress || this.jobQueue.length === 0) return;
 
       options = this.jobQueue.shift();
 
+      var splitter = options.onSplit || this.splitBuffers;
       this.workers = [];
       this.queues = [];
       
       var workerJob = new WorkerJob({
-        onReconstruct : options.onReconstruct,
-        onProgress : options.onProgress,
+        onReconstruct : options.onReconstruct || function() {},
+        onProgress : options.onProgress || function() {},
         id : ~~(Math.random() * 10000),
         manager : this
       });
 
 
       if (options.split) {
-        buffers = this.splitBuffers(options.data, options.split);
+
+        buffers = splitter.call(this, options, options.split);
         splitCount = buffers[0].length;
-        
+                console.log("pre worker creation");
+
         this.createWorkers(splitCount < this.WORKER_COUNT ? splitCount : this.WORKER_COUNT);
-       
+               console.log("post worker creation");
+
         delete options.data;
         delete options.onReconstruct;
         delete options.onProgress;
+        delete options.onSplit;
 
         for (var i = 0; i < splitCount; i++) {
           var job = clone(options);
           job.data = [];
+          job.altData = [];
           for (var x = 0; x < buffers.length; x++) {
             job.data.push(buffers[x][i].data);
+            job.altData.push(buffers[x][i].altData);
           }
+
           job._pos = buffers[0][i]._pos;
           job.processID = ++id;
           job.jobID = workerJob.id;
@@ -208,11 +223,17 @@
         }
       } else {
         splitCount = 1;
-        
+        buffers = options.data;
+        console.log("pre worker creation");
         this.createWorkers(splitCount);
 
+        console.log("post worker creation");
+        delete options.data;
+        delete options.onReconstruct;
+        delete options.onProgress;
+
         var job = clone(options);
-        job.data = options.data
+        job.data = buffers;
         job.processID = ++id;
         job.jobID = workerJob.id;
 

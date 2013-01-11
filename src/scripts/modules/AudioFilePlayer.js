@@ -57,15 +57,17 @@ function(BaseModule, AudioFile) {
     onFileRead : function(e, callback) {
       var self = this;
       self.trigger('status-update', "Decoding audio...");
+      self.trigger('file-read');
       this.nodes.audioSource.decodeAudio(e.target.result, function() {
         self.onAudioDecode(e, callback);
       });
     },
     importBuffer : function(buffers, callback) {
       var self = this;
-
+      console.log("importing buffer start");
+      self.trigger('status-update', 'Importing buffer...');
+      
       this.nodes.audioSource.setSource(buffers, function() {
-        self.trigger('status-update', 'Importing buffer...');
         self.onAudioDecode({}, callback);
       });
     },
@@ -124,6 +126,57 @@ function(BaseModule, AudioFile) {
       this.selection.end = 0;
       this.selection.set = false;
     },
+    replaceBufferSelection : function(replaceBuffers, callback) {
+      var self = this;
+      var start = this.selection.start * this.SAMPLE_RATE;
+      var end = this.selection.end * this.SAMPLE_RATE;
+
+      WorkerManager.addJob({
+        action : "replace-buffer-section",
+        start : start,
+        end : end,
+        data : this.getChannelData(),
+        split : 500,
+        replaceBuffers : replaceBuffers,
+        onReconstruct : function(res) {
+          callback(self.reconstructBuffer(res));
+        },
+        onSplit : function(options) {
+          var _buffers = [];
+          var buffers = options.data;
+          var rBuffers = options.replaceBuffers;
+          var start = Math.round(options.start);
+          var end = start + rBuffers[0].length;
+          var _rBuff = [];
+          var _rPos = 0;
+          var split = options.split;
+
+          for (var x = 0, _len = buffers.length; x < _len; x++) {
+            var _remaining = rBuffers[0].length
+            var splits = [], buffer = buffers[x];
+
+            for (var i = 0, j = buffer.length; i < j; i += split) {
+              if (i >= start && i <= end) {
+                var amount = i - start > split ? split : i - start;
+                _rBuff = Array.prototype.splice.call(rBuffers[x], 0, amount);
+                _rPos = split - amount;
+              }
+              splits.push({
+                data : Array.prototype.slice.call(buffer, i, i + split),
+                altData : {
+                  _pos : i,
+                  _rPos : _rPos,
+                  _rBuff : _rBuff
+                }
+              });
+            }
+            
+            _buffers.push(splits);        
+          }
+          return _buffers;
+        }
+      });
+    },
     cutSelection : function(callback) {
       var self = this;
 
@@ -134,17 +187,28 @@ function(BaseModule, AudioFile) {
 
       self.trigger('status-update', "Cutting selection...");
 
-      worker.onmessage = function(res) {
-        self.clipboard.buffer = res.data.data.cutBuffers;
-        self.importBuffer(res.data.data.buffers, callback);
-      };
-
-      worker.postMessage({
+      WorkerManager.addJob({
         action : "cut-buffer",
         data : this.getChannelData(),
         start : this.selection.start * this.SAMPLE_RATE,
-        end : this.selection.end * this.SAMPLE_RATE
+        end : this.selection.end * this.SAMPLE_RATE,
+        onReconstruct : function(res) {
+          self.clipboard.buffer = res[0].cutBuffers;
+          self.importBuffer(res[0].buffers, callback);
+        }
       });
+
+      // worker.onmessage = function(res) {
+      //   self.clipboard.buffer = res.data.data.cutBuffers;
+      //   self.importBuffer(res.data.data.buffers, callback);
+      // };
+
+      // worker.postMessage({
+      //   action : "cut-buffer",
+      //   data : this.getChannelData(),
+      //   start : this.selection.start * this.SAMPLE_RATE,
+      //   end : this.selection.end * this.SAMPLE_RATE
+      // });
     },
     copySelection : function() {
       var self = this;
@@ -166,21 +230,31 @@ function(BaseModule, AudioFile) {
       if (!this.enableProcessing) return;
       this.enableProcessing = false;
 
-      worker.onmessage = function(res) {
-        if (res.data.action === "progress") {
-
-          self.trigger('status-update', 'Pasting... ' + res.data.percent + "%");
-        } else {
-          self.importBuffer(res.data.data, callback);
-        }
-      };
-
-      worker.postMessage({
+      WorkerManager.addJob({
         action : "insert-buffer",
         data : this.getChannelData(),
         insertBuffer : this.clipboard.buffer,
-        start : this.currentPosition * this.SAMPLE_RATE
+        start : this.currentPosition * this.SAMPLE_RATE,
+        onReconstruct : function(res) {
+          self.importBuffer(res[0], callback);
+        }
       });
+
+      // worker.onmessage = function(res) {
+      //   if (res.data.action === "progress") {
+
+      //     self.trigger('status-update', 'Pasting... ' + res.data.percent + "%");
+      //   } else {
+      //     self.importBuffer(res.data.data, callback);
+      //   }
+      // };
+
+      // worker.postMessage({
+      //   action : "insert-buffer",
+      //   data : this.getChannelData(),
+      //   insertBuffer : this.clipboard.buffer,
+      //   start : this.currentPosition * this.SAMPLE_RATE
+      // });
     },
     getDuration : function() {
       return this.duration;
@@ -298,11 +372,26 @@ function(BaseModule, AudioFile) {
 
       var channelData = this.getChannelData();
 
+      if (!this.selection.set) {
+        callback(this.getChannelData());
+        return;
+      }
+
+      // WorkerManager.addJob({
+      //   action : "get-selection-buffer",
+      //   fps : buffer.length / buffer.duration,
+      //   start : this.selection.start,
+      //   end : this.selection.end,
+      //   data : channelData,
+      //   onReconstruct : function(data) {
+      //     callback(data[0]);
+      //   }
+      // });
+      // 
       WorkerManager.addJob({
         action : "get-selection-buffer",
-        fps : buffer.length / buffer.duration,
-        start : this.selection.start,
-        end : this.selection.end,
+        start : this.selection.start * (buffer.length / buffer.duration),
+        end : this.selection.end * (buffer.length / buffer.duration),
         data : channelData,
         split : 500,
         onReconstruct : function(data) {
@@ -312,22 +401,6 @@ function(BaseModule, AudioFile) {
           self.onProgress("Getting selection...", percent);
         }
       });
-
-      // worker.postMessage({
-      //   action : "get-selection-buffer",
-      //   data : channelData,
-      //   fps : buffer.length / buffer.duration,
-      //   start : this.selection.start,
-      //   end : this.selection.end
-      // });
-
-      // worker.onmessage = function(res) {
-      //   callback(res);
-      //   // console.log(res);
-      //   // if (res.data.action === "get-selection-buffer") {
-      //   //   self.export(res.data.data);
-      //   // }
-      // };
     },
     setGainAdjustment : function(value) {
       this.gainAdjustmentFactor = value;
@@ -338,18 +411,44 @@ function(BaseModule, AudioFile) {
       if (!this.enableProcessing) return;
       this.enableProcessing = false;
 
-      worker.onmessage = function(e) {
-        self.importBuffer(_.map(e.data.data, _.arrayTo32Float), callback);
-      };
+      // worker.onmessage = function(e) {
+      //   self.importBuffer(_.map(e.data.data, _.arrayTo32Float), callback);
+      // };
 
-      this.trigger('status-update', 'Normalizing...');
-
-      worker.postMessage({
-        action : "normalize-buffer",
-        data : this.getChannelData(),
-        start : this.selection.set ? this.selection.start * this.SAMPLE_RATE : 0,
-        end : (this.selection.set ? this.selection.end : this.getDuration()) * this.SAMPLE_RATE
+      // this.trigger('status-update', 'Normalizing...');
+      this.getSelectionBuffer(function(buffers) {
+        WorkerManager.addJob({
+          action : "get-buffer-max",
+          data : buffers,
+          start : 0,
+          end : buffers[0].length,
+          onReconstruct : function(res) {
+            WorkerManager.addJob({
+              action : "normalize-buffer",
+              data : buffers,
+              max : res[0],
+              split : 500,
+              onReconstruct : function(res) {
+                var data = self.reconstructBuffer(res);
+                self.replaceBufferSelection(data, function(res) {
+                  self.importBuffer(res, callback);
+                });
+              },
+              onProgress : function(percent) {
+                self.onProgress("Normalizing...", percent);
+              }
+            })
+          }
+        });
+      
       });
+
+      // worker.postMessage({
+      //   action : "normalize-buffer",
+      //   data : this.getChannelData(),
+      //   start : this.selection.set ? this.selection.start * this.SAMPLE_RATE : 0,
+      //   end : (this.selection.set ? this.selection.end : this.getDuration()) * this.SAMPLE_RATE
+      // });
     },
     // normalizeSelection : function(callback) {
     //   var self = this;

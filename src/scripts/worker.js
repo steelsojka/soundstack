@@ -4,29 +4,35 @@ var conf = {
 
 self.onmessage = function(e) {
 
-	var data;
+	var data, pData = e.data;
 
-	switch (e.data.action) {
+	switch (pData.action) {
 		case "waveform-peaks":
-			data = calculateWaveformPeaks(e.data.data, e.data.width);
+			data = calculateWaveformPeaks(pData.data, pData.width);
 			break;
     case "get-selection-buffer":
-      data = getSelectionBuffer(e.data.data, e.data._pos, e.data.start, e.data.end, e.data.fps);
+      data = getSelectionBuffer(pData.data, pData.altData, pData.start, pData.end);
       break;
     case "normalize-buffer":
-      data = normalizeBuffer(e.data.data, e.data.start, e.data.end);
+      data = normalizeBuffer(pData.data, pData.max);
       break;
     case "cut-buffer":
-      data = cutBuffer(e.data.data, e.data.start, e.data.end);
+      data = cutBuffer(pData.data, pData.start, pData.end);
       break;
     case "insert-buffer":
-      data = insertBuffer(e.data.data, e.data.insertBuffer, e.data.start);
+      data = insertBuffer(pData.data, pData.insertBuffer, pData.start);
+      break;
+    case "get-buffer-max":
+      data = getMax(pData.data, pData.start, pData.end);
+      break;
+    case "replace-buffer-section":
+      data = replaceBufferSection(pData.data, pData.altData, pData.altData);
       break;
     case "adjust-buffer-gain":
-      data = adjustBufferGain(e.data.data, e.data.amount, e.data.start, e.data.end);
+      data = adjustBufferGain(pData.data, pData.amount, pData.start, pData.end);
       break;
     case "dummy":
-      data = e.data.data;
+      data = pData.data;
       break;
 		case "default":
 			data = {};
@@ -34,50 +40,61 @@ self.onmessage = function(e) {
 
 	var res = {
 		data : data,
-		action : e.data.action,
-    processID : e.data.processID,
-    jobID : e.data.jobID
+		action : pData.action,
+    processID : pData.processID,
+    jobID : pData.jobID
 	};
 
 	self.postMessage(res);
 
 };
 
-var getMax = function(array, start, end) {
+
+var splice = function(start, amount, _addArray) {
+  var slice = Array.prototype.slice;
+  var addArray = _addArray || [];
+
+  var startArray = slice.call(this, 0, start);
+  var endArray = slice.call(this, amount + start, this.length);
+  var returnArray = slice.call(this, start, amount);
+
+  return startArray.concat(addArray, endArray);
+};
+
+
+
+var getMax = function(buffers, start, end) {
   var max = 0;
   var temp;
   var x = start;
 
-  for (var i = 0, _len = end - start; i < _len; i++) {
-    var temp = array[x++];
-    if (temp < 0) temp = -temp;
-    max = temp > max ? temp : max;
-  };
+  for (var y = 0, _len2 = buffers.length; y < _len2; y++) {
+    for (var i = 0, _len = end - start; i < _len; i++) {
+      var temp = buffers[y][x++];
+      if (temp < 0) temp = -temp;
+      max = temp > max ? temp : max;
+    }
+  }
 
   return max;
 };
 
-var normalizeBuffer = function(buffers, start, end) {
-  var prevMax = 0;
-  var max = 0;
-  end = Math.round(end);
-  start = Math.round(start);
-
+var replaceBufferSection = function(buffers, altData) {
   for (var i = 0, _len = buffers.length; i < _len; i++) {
-      max = getMax(buffers[i], start, end);
-      max = prevMax < max ? max : prevMax;
-      prevMax = max;
+    Array.prototype.splice.call(buffers[i], altData[i]._rPos, altData[i]._rBuff.length, altData[i]._rBuff);
   }
-  
+
+  return buffers;
+};
+
+var normalizeBuffer = function(buffers, max) {
   var factor = 1 / max;
 
   for (i = 0, _len = buffers.length; i < _len; i++) {
-    var _start = start;
     var buffer = buffers[i];
-    for (var x = 0, _len2 = end - start; x < _len2; x++) {
-      var amount = buffer[_start] * factor;
-      buffer[_start] = amount > 1 ? 1 : amount < -1 ? -1 : amount;
-      _start++;
+    for (var x = 0, _len2 = buffer.length; x < _len2; x++) {
+      var amount = buffer[x] * factor;
+      buffer[x] = amount > 1 ? 1 : amount < -1 ? -1 : amount;
     }
   }
 
@@ -102,28 +119,21 @@ var adjustBufferGain = function(buffers, factor, start, end) {
 };
 
 var cutBuffer = function(buffers, start, end) {
-  var newLength, length = buffers[0].length, cutLength,
-      newData = [], cutBuffers = [];
+  // var newLength, length = buffers[0].length, cutLength,
+  //     newData = [], cutBuffers = [];
+  var slice = Array.prototype.slice;
 
   start = Math.round(start);
   end = Math.round(end);
-  cutLength = end - start;
-  newLength = length - cutLength;
+  var cutLength = end - start;
+  var cutBuffers = [];
+  var newData = [];
+  // newLength = length - cutLength;
+
 
   for (var i = 0, _len = buffers.length; i < _len ; i++) {
-    var buffer = buffers[i], newBuffer = [], x = 0, cut = [], c = 0, k = 0;
-    for (var j = 0; j < newLength; j++) {
-      if (x >= start && x < end) {
-        cut[c] = buffer[x];
-        c++;
-      } else {
-        newBuffer[k] = buffer[x];
-        k++;
-      }
-      x++;
-    }
-    cutBuffers.push(cut);
-    newData.push(newBuffer);
+    cutBuffers.push(slice.call(buffers[i], start, start + cutLength));
+    newData.push(splice.call(buffers[i], start, cutLength));
   }
 
   return {buffers : newData, cutBuffers : cutBuffers};
@@ -131,54 +141,43 @@ var cutBuffer = function(buffers, start, end) {
 };
 
 var insertBuffer = function(buffers, insertBuffers, start) {
-  var newLength, length = buffers[0].length, newData = [], insertEnd, progress = 0, chunk = [], c = 0;
-
+  var length = buffers[0].length, newData = [];
+  var slice = Array.prototype.slice;
   start = Math.round(start);
-  newLength = length + insertBuffers[0].length;
-  insertEnd = start + insertBuffers[0].length;
 
   for (var i = 0, _len = buffers.length; i < _len; i++) {
-    var buffer = buffers[i], newBuffer = [], k = 0, l = 0;
-    for (var j = 0; j < newLength; j++) {
-      if (j >= start && j < insertEnd) {
-        chunk[c++] = insertBuffers[i][k];
-        // newBuffer[j] = insertBuffers[i][k];
-        k++;
-      } else {
-        chunk[c++] = buffer[l];
-        // newBuffer[j] = buffer[l];
-        l++;
-      }
-      progress = (((j / newLength) / buffers.length) * 100) * (i + 1);
-      if (j % conf.BUFFER_SIZE === 0 || j === newLength - 1) {
-        self.postMessage({
-          action : "progress",
-          percent : ~~progress,
-          data : chunk,
-          channel : i
-        });
-        c = 0;
-        chunk = [];
-      }
-    }
-    // newData.push(newBuffer);
+
+    var startArray = slice.call(buffers[i], 0, start);
+    var endArray = slice.call(buffers[i], start, length);
+
+    newData.push(startArray.concat(insertBuffers[i], endArray));
   }
 
-  // return newData;
+  return newData;
 
 };
 
-var getSelectionBuffer = function(buffers, _pos, start, end, fps) {
+var getSelectionBuffer = function(buffers, altData, start, end) {
+  // var newData = [];
+  // var startFrame = Math.round(start * fps);
+  // var endFrame = Math.round(end * fps);
+
+  // for (var i = 0, _len = buffers.length; i < _len; i++) {  
+  //   newData.push(Array.prototype.slice.call(buffers[i], startFrame, endFrame));
+  // }
+
+  // return newData;
+
   var newBuffer, y, buffer;
   var newData = [];
-  var startFrame = Math.round(start * fps);
-  var endFrame = Math.round(end * fps);
+  var startFrame = Math.round(start);
+  var endFrame = Math.round(end);
   var length = buffers[0].length;
 
   for (var i = 0, _len = buffers.length; i < _len; i++) {  
     newBuffer = [], buffer = buffers[i], y = 0;
     for (var x = 0; x < length; x++) {
-      if (_pos + x >= startFrame && _pos + x < endFrame) {
+      if (altData[i]._pos + x >= startFrame && altData[i]._pos + x < endFrame) {
         newBuffer[y++] = buffer[x];
       }
     }
@@ -195,6 +194,7 @@ var getSelectionBuffer = function(buffers, _pos, start, end, fps) {
   // }
 
   return newData;
+
 };
 
 var calculateWaveformPeaks = function(data, width) {
@@ -204,7 +204,7 @@ var calculateWaveformPeaks = function(data, width) {
 
   for (var x = 0, _len2 = data.length; x < _len2; x++) {
     var values = data[x];
-    var peak = Math.max.apply(Math, values.map(Math.abs));
+    var peak = Math.max.apply(Math, values);
     if (typeof peak === "undefined") {
       peak = 0;
     }

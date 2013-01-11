@@ -42,6 +42,7 @@ define(["components/BaseNode"], function(BaseNode) {
     setSource : function(buffer, callback) {
       if (_.isArray(buffer)) {
         var newBuffer = this.context.createBuffer(2, buffer[0].length, this.context.sampleRate);
+        console.log("buffer created");
         newBuffer.getChannelData(0).set(buffer[0]);
         newBuffer.getChannelData(1).set(buffer[1]);
         buffer = newBuffer;
@@ -52,7 +53,7 @@ define(["components/BaseNode"], function(BaseNode) {
       this.source.loop = this.loop;
       // this.buffer = buffer;
       this.node = this.inputNode = this.outputNode = this.source;
-      this.setParameters(this.source);
+      // this.setParameters(this.source);
       this.setRate(this.playbackRate);
       if (typeof callback === "function") {
         callback.call(this, this.source);

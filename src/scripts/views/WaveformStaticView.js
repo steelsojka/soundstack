@@ -9,6 +9,7 @@ define(function() {
       this.component = this.options.component;
       this.color = "#0000FF";
       this.status = "No audio loaded";
+      this.animateWaveform = true;
 
       var template = env === "web" ? _.template($('#stack-module-static-waveform').html()) : templates.stack_module_static_waveform;
       var menuTemplate = env === "web" ? _.template($('#waveform-menu-bar').html()) : templates.waveform_menu_bar;
@@ -44,6 +45,7 @@ define(function() {
       this.module.on('status-update', this.onStatusUpdate);
       this.module.on('play', this.drawLoop);
       this.module.on('stop', this.clearProgress);
+      this.module.on('file-read', this.onFileRead);
 
       this.$el.find('.frosted-glass').on('mousedown', this.onMouseDown)
                                      .on('mouseup', this.onMouseUp)
@@ -54,9 +56,10 @@ define(function() {
 
     },
     build : function(argument) {
-      this.clearWaveform();
       this.buffer = this.module.getBuffer();
+      console.log("pre peak build");
       this.getPeaks();
+      // this.clearWaveform();
     },
     clearWaveform : function() {
       var ctx = this.context;
@@ -79,6 +82,9 @@ define(function() {
         x : e.clientX - rect.left,
         y : e.clientY - rect.top
       }
+    },
+    onFileRead : function() {
+      this.animateWaveform = true;
     },
     onDoubleClick : function(e) {
       this.module.setPosition(0);
@@ -221,10 +227,13 @@ define(function() {
           self.peaks = Array.prototype.concat([], data);
           self.draw(self.peaks);
           self.clearStatus();
+          self.animateWaveform = false;
         },
         onProgress : function(percent, data) {
-          self.module.trigger('status-update', "Building waveform... " + percent + "%", percent);
-          self.drawFrame(index++, data.data[0]);
+          if (self.animateWaveform) {
+            self.module.trigger('status-update', "Building waveform... " + percent + "%", percent);
+            self.drawFrame(index++, data.data[0]);
+          };
         }
       });
 
