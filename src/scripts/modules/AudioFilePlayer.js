@@ -298,7 +298,7 @@ function(BaseModule, AudioFile) {
 
       var channelData = this.getChannelData();
 
-      WorkerManager.delegateJob({
+      WorkerManager.addJob({
         action : "get-selection-buffer",
         fps : buffer.length / buffer.duration,
         start : this.selection.start,

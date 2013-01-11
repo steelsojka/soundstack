@@ -112,6 +112,7 @@
       });
 
       this.onReconstruct(_.pluck(this.returnQueue, "data"));
+      this.manager.processJob();
     }
   };
 
@@ -120,9 +121,9 @@
     this.WORKER_URL = "scripts/worker.js";
     this.workers = [];
     this.queues = [];
+    this.jobQueue = [];
+    this.jobInProgress = false;
     this.currentJobID = 0;
-
-    
   };
 
   WorkerManager.prototype = {
@@ -147,9 +148,17 @@
     getQueues : function() {
       return this.queues;
     },
-    delegateJob : function(options) {
+    addJob : function(options) {
+      this.jobQueue.push(options);
+      this.processJob();
+    },
+    processJob : function() {
       var splitCount, worker_num = 0, id = 0;
       
+      if (this.jobInProgress || this.jobQueue.length === 0) return;
+
+      options = this.jobQueue.shift();
+
       this.workers = [];
       this.queues = [];
       

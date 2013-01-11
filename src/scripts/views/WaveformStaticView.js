@@ -212,7 +212,7 @@ define(function() {
       //   }
       // };
 
-      WorkerManager.delegateJob({
+      WorkerManager.addJob({
         action : "waveform-peaks",
         data : channelData,
         split : channelData[0].length / 4096,
