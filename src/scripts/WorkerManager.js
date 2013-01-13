@@ -131,27 +131,6 @@
     removeQueue : function(queue) {
       this.queues = _.without(this.queues, queue);
     },
-    splitBuffers : function(data, split) {
-      var _buffers = [];
-      var buffers = data.data;
-
-      for (var x = 0, _len = buffers.length; x < _len; x++) {
-        var splits = [], buffer = buffers[x];
-
-        for (var i = 0, j = buffer.length; i < j; i += split) {
-          splits.push({
-            data : Array.prototype.slice.call(buffer, i, i + split),
-            altData : {
-              _pos : i
-            }
-          });
-        }
-        
-        _buffers.push(splits);        
-      }
-
-      return _buffers;
-    },
     getQueues : function() {
       return this.queues;
     },
@@ -174,7 +153,7 @@
 
       options = this.jobQueue.shift();
 
-      var splitter = options.onSplit || this.splitBuffers;
+      var splitter = options.onSplit || function() {};
       this.workers = [];
       this.queues = [];
       

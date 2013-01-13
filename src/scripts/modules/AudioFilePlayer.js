@@ -71,6 +71,27 @@ function(BaseModule, AudioFile) {
         self.onAudioDecode({}, callback);
       });
     },
+    splitBuffers : function(data, split) {
+      var _buffers = [];
+      var buffers = data.data;
+
+      for (var x = 0, _len = buffers.length; x < _len; x++) {
+        var splits = [], buffer = buffers[x];
+
+        for (var i = 0, j = buffer.length; i < j; i += split) {
+          splits.push({
+            data : Array.prototype.slice.call(buffer, i, i + split),
+            altData : {
+              _pos : i
+            }
+          });
+        }
+        
+        _buffers.push(splits);        
+      }
+
+      return _buffers;
+    },
     onAudioDecode : function(e, callback) {
       this._enablePlay = true;
       var self = this;
@@ -192,9 +213,11 @@ function(BaseModule, AudioFile) {
         data : this.getChannelData(),
         start : this.selection.start * this.SAMPLE_RATE,
         end : this.selection.end * this.SAMPLE_RATE,
+        split : 500,
+        onSplit : self.splitBuffers,
         onReconstruct : function(res) {
-          self.clipboard.buffer = res[0].cutBuffers;
-          self.importBuffer(res[0].buffers, callback);
+          self.clipboard.buffer = self.reconstructBuffer(_.pluck(res, "cutBuffers"));
+          self.importBuffer(self.reconstructBuffer(_.pluck(res, "buffers")), callback);
         }
       });
 
@@ -397,6 +420,7 @@ function(BaseModule, AudioFile) {
         onReconstruct : function(data) {
           callback(self.reconstructBuffer(data));
         },
+        onSplit : this.splitBuffers,
         onProgress : function(percent) {
           self.onProgress("Getting selection...", percent);
         }
@@ -428,6 +452,7 @@ function(BaseModule, AudioFile) {
               data : buffers,
               max : res[0],
               split : 500,
+              onSplit : self.splitBuffers,
               onReconstruct : function(res) {
                 var data = self.reconstructBuffer(res);
                 self.replaceBufferSelection(data, function(res) {

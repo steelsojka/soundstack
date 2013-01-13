@@ -223,6 +223,7 @@ define(function() {
         data : channelData,
         split : channelData[0].length / 4096,
         width : 4096,
+        onSplit : this.module.splitBuffers,
         onReconstruct : function(data) {
           self.peaks = Array.prototype.concat([], data);
           self.draw(self.peaks);

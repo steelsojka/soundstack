@@ -17,7 +17,7 @@ self.onmessage = function(e) {
       data = normalizeBuffer(pData.data, pData.max);
       break;
     case "cut-buffer":
-      data = cutBuffer(pData.data, pData.start, pData.end);
+      data = cutBuffer(pData.data, pData.altData, pData.start, pData.end);
       break;
     case "insert-buffer":
       data = insertBuffer(pData.data, pData.insertBuffer, pData.start);
@@ -118,10 +118,11 @@ var adjustBufferGain = function(buffers, factor, start, end) {
   return buffers;
 };
 
-var cutBuffer = function(buffers, start, end) {
+var cutBuffer = function(buffers, altData, start, end) {
   // var newLength, length = buffers[0].length, cutLength,
   //     newData = [], cutBuffers = [];
   var slice = Array.prototype.slice;
+  var pos = altData[0]._pos;
 
   start = Math.round(start);
   end = Math.round(end);
@@ -132,8 +133,13 @@ var cutBuffer = function(buffers, start, end) {
 
 
   for (var i = 0, _len = buffers.length; i < _len ; i++) {
-    cutBuffers.push(slice.call(buffers[i], start, start + cutLength));
-    newData.push(splice.call(buffers[i], start, cutLength));
+    if (pos >= start && pos <= end) {
+      cutBuffers.push(slice.call(buffers[i], pos - start, buffers[i].length - (pos - start)));
+      newData.push(splice.call(buffers[i], 0, pos - start));
+    } else {
+      cutBuffers.push([]);
+      newData.push(buffers[i]);      
+    }
   }
 
   return {buffers : newData, cutBuffers : cutBuffers};
