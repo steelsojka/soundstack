@@ -41,7 +41,13 @@ define(["components/BaseNode"], function(BaseNode) {
      */
     setSource : function(buffer, callback) {
       if (_.isArray(buffer)) {
-        var newBuffer = this.context.createBuffer(2, buffer[0].length, this.context.sampleRate);
+        try {
+          var newBuffer = this.context.createBuffer(2, buffer[0].length, this.context.sampleRate);
+        } catch(err) {
+          console.error("Buffer is to small or of incorrect type.");
+          callback(err);
+          return;
+        }
         console.log("buffer created");
         newBuffer.getChannelData(0).set(buffer[0]);
         newBuffer.getChannelData(1).set(buffer[1]);

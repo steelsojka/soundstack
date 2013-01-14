@@ -1,7 +1,3 @@
-var conf = {
-  BUFFER_SIZE : 1000
-};
-
 self.onmessage = function(e) {
 
 	var data, pData = e.data;
@@ -14,7 +10,7 @@ self.onmessage = function(e) {
       data = getSelectionBuffer(pData.data, pData.altData, pData.start, pData.end);
       break;
     case "normalize-buffer":
-      data = normalizeBuffer(pData.data, pData.max);
+      data = normalizeBuffer(pData.data, pData.start, pData.end, pData.altData, pData.max);
       break;
     case "cut-buffer":
       data = cutBuffer(pData.data, pData.altData, pData.start, pData.end);
@@ -56,7 +52,7 @@ var splice = function(start, amount, _addArray) {
 
   var startArray = slice.call(this, 0, start);
   var endArray = slice.call(this, amount + start, this.length);
-  var returnArray = slice.call(this, start, amount);
+  // var returnArray = slice.call(this, start, amount);
 
   return startArray.concat(addArray, endArray);
 };
@@ -80,21 +76,25 @@ var getMax = function(buffers, start, end) {
 };
 
 var replaceBufferSection = function(buffers, altData) {
+
   for (var i = 0, _len = buffers.length; i < _len; i++) {
-    Array.prototype.splice.call(buffers[i], altData[i]._rPos, altData[i]._rBuff.length, altData[i]._rBuff);
+    buffers[i] = splice.call(buffers[i], altData[i]._rPos, altData[i]._rBuff.length, altData[i]._rBuff);
   }
 
   return buffers;
 };
 
-var normalizeBuffer = function(buffers, max) {
+var normalizeBuffer = function(buffers, start, end, alt, max) {
   var factor = 1 / max;
+  var pos = alt[0]._pos;
 
   for (i = 0, _len = buffers.length; i < _len; i++) {
     var buffer = buffers[i];
     for (var x = 0, _len2 = buffer.length; x < _len2; x++) {
-      var amount = buffer[x] * factor;
-      buffer[x] = amount > 1 ? 1 : amount < -1 ? -1 : amount;
+      if (pos + x >= start && pos + x <= end) {
+        var amount = buffer[x] * factor;
+        buffer[x] = amount > 1 ? 1 : amount < -1 ? -1 : amount;
+      } 
     }
   }
 
@@ -134,8 +134,16 @@ var cutBuffer = function(buffers, altData, start, end) {
 
   for (var i = 0, _len = buffers.length; i < _len ; i++) {
     if (pos >= start && pos <= end) {
-      cutBuffers.push(slice.call(buffers[i], pos - start, buffers[i].length - (pos - start)));
-      newData.push(splice.call(buffers[i], 0, pos - start));
+      var startCut = pos - start >= buffers[i].length ? 0 : pos - start;
+      var endCut = end - pos >= buffers[i].length ? buffers[i].length : end - pos;
+      self.postMessage({
+        action : "log",
+        start : startCut,
+        end : endCut
+      });
+
+      cutBuffers.push(slice.call(buffers[i], startCut, endCut));
+      newData.push(splice.call(buffers[i], startCut, endCut - startCut));
     } else {
       cutBuffers.push([]);
       newData.push(buffers[i]);      
@@ -174,19 +182,30 @@ var getSelectionBuffer = function(buffers, altData, start, end) {
 
   // return newData;
 
-  var newBuffer, y, buffer;
+  var newBuffer, buffer;
   var newData = [];
   var startFrame = Math.round(start);
   var endFrame = Math.round(end);
   var length = buffers[0].length;
+  var pos = altData[0]._pos;
 
   for (var i = 0, _len = buffers.length; i < _len; i++) {  
-    newBuffer = [], buffer = buffers[i], y = 0;
-    for (var x = 0; x < length; x++) {
-      if (altData[i]._pos + x >= startFrame && altData[i]._pos + x < endFrame) {
-        newBuffer[y++] = buffer[x];
-      }
+    newBuffer = [], buffer = buffers[i];
+    if (pos >= startFrame && pos <= endFrame) {
+      var startCut = pos - startFrame >= buffer.length 
+        ? 0
+        : pos - startFrame;
+      var endCut = (endFrame - pos) >= buffer.length 
+        ? buffer.length
+        : (endFrame - pos);
+  
+      newBuffer = Array.prototype.slice.call(buffer, startCut, endCut);
     }
+    // for (var x = 0; x < length; x++) {
+      // if (altData[i]._pos + x >= startFrame && altData[i]._pos + x < endFrame) {
+      //   newBuffer[y++] = buffer[x];
+      // }
+    // }
     newData.push(newBuffer);
   }
 

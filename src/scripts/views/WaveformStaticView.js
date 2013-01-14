@@ -10,6 +10,8 @@ define(function() {
       this.color = "#0000FF";
       this.status = "No audio loaded";
       this.animateWaveform = true;
+      this.currentPos = [0, 0];
+      this.peaks = [];
 
       var template = env === "web" ? _.template($('#stack-module-static-waveform').html()) : templates.stack_module_static_waveform;
       var menuTemplate = env === "web" ? _.template($('#waveform-menu-bar').html()) : templates.waveform_menu_bar;
@@ -217,6 +219,11 @@ define(function() {
       //     self.module.trigger('status-update', "Building waveform... " + res.data.percent + "%");
       //   }
       // };
+      if (this.animateWaveform) {
+        this.clearWaveform();
+      }
+      
+      window.timerStart = this.module.context.currentTime;
 
       WorkerManager.addJob({
         action : "waveform-peaks",
@@ -225,16 +232,20 @@ define(function() {
         width : 4096,
         onSplit : this.module.splitBuffers,
         onReconstruct : function(data) {
-          self.peaks = Array.prototype.concat([], data);
-          self.draw(self.peaks);
+          // self.peaks = Array.prototype.concat([], _.map(data, function(d) { return d[0]; }));
+          if (!self.animateWaveform) {
+            self.draw(self.peaks);
+          }
           self.clearStatus();
           self.animateWaveform = false;
+          console.log(self.module.context.currentTime - timerStart);
         },
         onProgress : function(percent, data) {
           if (self.animateWaveform) {
-            self.module.trigger('status-update', "Building waveform... " + percent + "%", percent);
-            self.drawFrame(index++, data.data[0]);
+            self.drawFrame(data.processID, data.data[0]);
           };
+          self.module.trigger('status-update', "Building waveform... " + percent + "%", percent);
+          self.peaks[data.processID] = data.data[0];
         }
       });
 
@@ -291,12 +302,13 @@ define(function() {
     draw : function() {
       var ctx = this.context;
       var canvas = this.canvas;
-      var maxPeak = _.max(this.peaks);
+      // var maxPeak = _.max(this.peaks);
       var self = this;
       ctx.clearRect(0, 0, this.canvas.width, this.canvas.height)
 
+
       _.each(this.peaks, function(peak, i) {
-        self.drawFrame(i, peak, maxPeak);
+        self.drawFrame(i, peak);
       });
     },
     drawFrame: function (index, value, max) {
@@ -304,6 +316,7 @@ define(function() {
         var h = Math.round(value * this.canvas.height);
 
         var x = index * w;
+
         var y = Math.round((this.canvas.height - h) / 2);
 
         // var lingrad = this.context.createLinearGradient(w,y,w,y + h);
@@ -312,6 +325,9 @@ define(function() {
         // lingrad.addColorStop(1, "#F5F5F5");
 
         this.context.fillStyle = "#DBDBDB";
+        // this.context.lineTo(x, y);
+        // this.context.lineTo(x, y - this.canvas.height / 2);
+        // this.context.stroke();
         this.context.fillRect(x, y, w, h);
     },
     onFileMenuChange : function(e) {

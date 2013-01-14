@@ -39,6 +39,12 @@
     },
     onMessage : function(e) {
       // this.returnQueue.push(e.data);
+      
+      if (e.data.action === "log") {
+        console.log(e.data);
+        return;
+      }
+
       this._tempJob.pushReturn(e.data);
 
       if (this.queue.length > 0) {
@@ -118,7 +124,7 @@
   };
 
   var WorkerManager = function() {
-    this.WORKER_COUNT = 16;
+    this.WORKER_COUNT = 8;
     this.WORKER_URL = "scripts/worker.js";
     this.workers = [];
     this.queues = [];
@@ -156,6 +162,7 @@
       var splitter = options.onSplit || function() {};
       this.workers = [];
       this.queues = [];
+      this.workerCount = options.workers || this.WORKER_COUNT;
       
       var workerJob = new WorkerJob({
         onReconstruct : options.onReconstruct || function() {},
@@ -171,7 +178,7 @@
         splitCount = buffers[0].length;
                 console.log("pre worker creation");
 
-        this.createWorkers(splitCount < this.WORKER_COUNT ? splitCount : this.WORKER_COUNT);
+        this.createWorkers(splitCount < this.workerCount ? splitCount : this.workerCount);
                console.log("post worker creation");
 
         delete options.data;
