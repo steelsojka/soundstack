@@ -65,7 +65,9 @@ var getMax = function(buffers, start, end) {
   var x = start;
 
   for (var y = 0, _len2 = buffers.length; y < _len2; y++) {
-    for (var i = 0, _len = end - start; i < _len; i++) {
+    var i = end - start;
+    while (i--) {
+      
       var temp = buffers[y][x++];
       if (temp < 0) temp = -temp;
       max = temp > max ? temp : max;
@@ -87,11 +89,13 @@ var replaceBufferSection = function(buffers, altData) {
 var normalizeBuffer = function(buffers, start, end, alt, max) {
   var factor = 1 / max;
   var pos = alt[0]._pos;
+  var i = buffers.length;
 
-  for (i = 0, _len = buffers.length; i < _len; i++) {
-    var buffer = buffers[i];
-    for (var x = 0, _len2 = buffer.length; x < _len2; x++) {
-      if (pos + x >= start && pos + x <= end) {
+  while(i--) {
+    var buffer = buffers[i], x = buffer.length;
+    while (x--) {
+      var _pos = pos + x;
+      if (_pos >= start && _pos <= end) {
         var amount = buffer[x] * factor;
         buffer[x] = amount > 1 ? 1 : amount < -1 ? -1 : amount;
       } 
@@ -99,7 +103,6 @@ var normalizeBuffer = function(buffers, start, end, alt, max) {
   }
 
   return buffers;
-
 };
 
 var adjustBufferGain = function(buffers, factor, start, end) {
@@ -136,11 +139,11 @@ var cutBuffer = function(buffers, altData, start, end) {
     if (pos >= start && pos <= end) {
       var startCut = pos - start >= buffers[i].length ? 0 : pos - start;
       var endCut = end - pos >= buffers[i].length ? buffers[i].length : end - pos;
-      self.postMessage({
-        action : "log",
-        start : startCut,
-        end : endCut
-      });
+      // self.postMessage({
+      //   action : "log",
+      //   start : startCut,
+      //   end : endCut
+      // });
 
       cutBuffers.push(slice.call(buffers[i], startCut, endCut));
       newData.push(splice.call(buffers[i], startCut, endCut - startCut));
@@ -189,6 +192,8 @@ var getSelectionBuffer = function(buffers, altData, start, end) {
   var length = buffers[0].length;
   var pos = altData[0]._pos;
 
+ 
+
   for (var i = 0, _len = buffers.length; i < _len; i++) {  
     newBuffer = [], buffer = buffers[i];
     if (pos >= startFrame && pos <= endFrame) {
@@ -198,7 +203,6 @@ var getSelectionBuffer = function(buffers, altData, start, end) {
       var endCut = (endFrame - pos) >= buffer.length 
         ? buffer.length
         : (endFrame - pos);
-  
       newBuffer = Array.prototype.slice.call(buffer, startCut, endCut);
     }
     // for (var x = 0; x < length; x++) {
@@ -223,12 +227,11 @@ var getSelectionBuffer = function(buffers, altData, start, end) {
 };
 
 var calculateWaveformPeaks = function(data, width) {
-  var fpp = data[0].length / width;
-  var slice = Array.prototype.slice;
   var bit = 0;
+  var i = data.length;
 
-  for (var x = 0, _len2 = data.length; x < _len2; x++) {
-    var values = data[x];
+  while (i--) {
+    var values = data[i];
     var peak = Math.max.apply(Math, values);
     if (typeof peak === "undefined") {
       peak = 0;

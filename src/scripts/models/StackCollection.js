@@ -85,7 +85,7 @@ function(ModuleInstanceModel, AudioContext, BaseModel, MasterOut) {
       window.stack = this;
       this.BPM = 120;
       this.context = new AudioContext().getContext();
-
+      debug.createTimer(this.context);
       // var userInput = new LineInput(this.context, function() {
       //   self.trigger('user-input:loaded', userInput);
       // });

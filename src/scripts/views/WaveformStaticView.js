@@ -59,7 +59,6 @@ define(function() {
     },
     build : function(argument) {
       this.buffer = this.module.getBuffer();
-      console.log("pre peak build");
       this.getPeaks();
       // this.clearWaveform();
     },
@@ -224,7 +223,7 @@ define(function() {
       }
       
       window.timerStart = this.module.context.currentTime;
-
+      debug.log("WAVEFORM: Sending to worker manager...");
       WorkerManager.addJob({
         action : "waveform-peaks",
         data : channelData,
@@ -238,7 +237,7 @@ define(function() {
           }
           self.clearStatus();
           self.animateWaveform = false;
-          console.log(self.module.context.currentTime - timerStart);
+          debug.log(self.module.context.currentTime - timerStart);
         },
         onProgress : function(percent, data) {
           if (self.animateWaveform) {

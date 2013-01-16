@@ -72,23 +72,32 @@ function(BaseModule, AudioFile) {
       });
     },
     splitBuffers : function(data, split) {
+
+      debug.log("AUDIO FILE PLAYER: Splitting buffers...");
+      debug.Timer.start();
+
       var _buffers = [];
       var buffers = data.data;
+      var x = buffers.length;
 
-      for (var x = 0, _len = buffers.length; x < _len; x++) {
-        var splits = [], buffer = buffers[x];
-
-        for (var i = 0, j = buffer.length; i < j; i += split) {
-          splits.push({
-            data : Array.prototype.slice.call(buffer, i, i + split),
+      while (x--) {
+        var splits = [], buffer = buffers[x], i = buffer.length;
+        var slice = Array.prototype.slice.bind(buffer);
+        while (i -= i < split ? i : split) {
+          splits.unshift({
+            data : slice(i, i + split),
             altData : {
               _pos : i
             }
           });
         }
+        // for (var i = 0, j = buffer.length; i < j; i += split) {
+        // }
         
-        _buffers.push(splits);        
+        _buffers.push(splits);
       }
+     
+      debug.log("AUDIO FILE PLAYER: Buffers split in " + debug.Timer.stop() + "s");
 
       return _buffers;
     },
@@ -265,7 +274,8 @@ function(BaseModule, AudioFile) {
       this.enableProcessing = false;
 
       this.getSelectionBuffer(function(res) {
-        self.clipboard.buffer = res.data.data;
+        self.clipboard.buffer = res;
+        self.enableProcessing = true;
       });
     },
     insertBuffer : function(callback) {
@@ -283,8 +293,9 @@ function(BaseModule, AudioFile) {
       
       for (var x = 0, _len = buffers.length; x < _len; x++) {
         buffer = buffers[x];
-
+        console.log("pre front");
         var front = slice.call(buffer, 0, pos);
+        console.log("pre back");
         var back = slice.call(buffer, pos, buffer.length);
 
         newBuffer[x] = front.concat(this.clipboard.buffer[x], back);
@@ -480,14 +491,13 @@ function(BaseModule, AudioFile) {
     reconstructBuffer : function(data) {
       var channel1 = [];
       var channel2 = [];
+      var x = data.length;
+      var i = 0;
 
-      _.each(data, function(buff) {
-        channel1.push(buff[0]);
-        channel2.push(buff[1]);
-      });
-
-      channel1 = Array.prototype.concat.apply([], channel1);
-      channel2 = Array.prototype.concat.apply([], channel2);
+      while (x--) {
+        channel1.concat(data[i][0]);
+        channel2.concat(data[i++][1]);
+      }
 
       return [channel1, channel2];
     },
@@ -562,7 +572,9 @@ function(BaseModule, AudioFile) {
             onSplit : self.splitBuffers,
             onReconstruct : function(res) {
               var data = self.reconstructBuffer(res);
-              self.importBuffer(data);
+              self.importBuffer(data, function() {
+                self.enableProcessing = true;
+              });
               // self.replaceBufferSelection(data, function(res) {
               //   self.importBuffer(res, callback);
               // });

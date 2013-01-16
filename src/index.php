@@ -6,7 +6,8 @@
     "library/jquery-ui-1.9.1.custom.min.js",
     "library/underscore.js",
     "library/backbone.js",
-    "library/Recorder.js"  
+    "library/Recorder.js",
+    "debug.js" 
   );
 
 ?>

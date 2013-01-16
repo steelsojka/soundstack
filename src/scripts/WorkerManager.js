@@ -20,6 +20,9 @@
     this.manager = manager;
     this._tempWorker = null;
     this.worker.onmessage = this.onMessage.bind(this);
+
+    debug.log("WORKER QUEUE: Initialized...");
+
   };
 
   WorkerQueue.prototype = {
@@ -28,6 +31,10 @@
       job.workerJob.remainingProcesses += 1;
       this.queue.push(job);
       this.isComplete = false;
+
+      // debug.clear();
+      debug.log("WORKER QUEUE: Process " + job.postData.processID + " for job " + job.workerJob.id + " pushed to queue", true);
+
     },
     process : function() {
       var job = this.queue.shift();
@@ -35,13 +42,15 @@
 
       job.workerJob.outstandingProcesses += 1;
 
+      // debug.clear();
+      debug.log("WORKER QUEUE: Sending process " + job.postData.processID + " for job " + job.workerJob.id + " to worker...", true);
       this.worker.postMessage(job.postData);
     },
     onMessage : function(e) {
       // this.returnQueue.push(e.data);
       
       if (e.data.action === "log") {
-        console.log(e.data);
+        debug.log(e.data);
         return;
       }
 
@@ -62,6 +71,7 @@
     },
     onQueueEmpty : function() {
       this.isComplete = true;
+      debug.log("WORKER QUEUE: Queue is empty.  Terminating...");
       this.worker.terminate();
       this.manager.removeQueue(this);
     }
@@ -71,7 +81,7 @@
 
     this.onReconstruct = function() {};
     this.onProgress = function() {};
-    this.isComplete = true;
+    this.isComplete = false;
     this.returnQueue = [];
     this.totalProcesses = 0;
     this.remainingProcesses = 0;
@@ -82,12 +92,14 @@
         this[key] = options[key];
       }
     }
+
+    debug.log("WORKER JOB " + this.id + ": Initialized...");
+
   };
 
   WorkerJob.prototype = {
     checkJobStatus : function() {
       var queues = this.manager.getQueues();
-      var isComplete = true;
 
       // for (var i = 0, _len = queues.length; i < _len; i++) {
       //   var queue = queues[i];
@@ -100,7 +112,7 @@
       //   if (!isComplete) break;
       // }
 
-      if (this.outstandingProcesses === 0) {
+      if (this.remainingProcesses === 0 && !this.isComplete) {
         this.isComplete = true;
         this.reconstruct();
       }
@@ -118,8 +130,14 @@
         return a.processID - b.processID;
       });
 
+      debug.log("WORKER JOB " + this.id + ": Job finished");
+
+      debug.log(_.pluck(this.returnQueue, "data"));
+
       this.onReconstruct(_.pluck(this.returnQueue, "data"));
-      this.manager.processJob();
+
+
+      // this.manager.processJob();
     }
   };
 
@@ -142,6 +160,7 @@
     },
     addJob : function(options) {
       this.jobQueue.push(options);
+      debug.log("WORKER: Job added");
       this.processJob();
     },
     createWorkers : function(amount) {
@@ -151,11 +170,15 @@
         this.workers.push(worker);
         this.queues.push(new WorkerQueue(worker, this));
       }
+      debug.log("WORKER: workers created");
     },
     processJob : function() {
       var splitCount, worker_num = 0, id = 0;
 
+
       if (this.jobInProgress || this.jobQueue.length === 0) return;
+
+      debug.log("WORKER: Job process started...");
 
       options = this.jobQueue.shift();
 
@@ -172,14 +195,15 @@
       });
 
 
+
       if (options.split) {
 
         buffers = splitter.call(this, options, options.split);
         splitCount = buffers[0].length;
-                console.log("pre worker creation");
+                // debug.log("pre worker creation");
 
         this.createWorkers(splitCount < this.workerCount ? splitCount : this.workerCount);
-               console.log("post worker creation");
+               // debug.log("post worker creation");
 
         delete options.data;
         delete options.onReconstruct;
@@ -210,10 +234,10 @@
       } else {
         splitCount = 1;
         buffers = options.data;
-        console.log("pre worker creation");
+        debug.log("pre worker creation");
         this.createWorkers(splitCount);
 
-        console.log("post worker creation");
+        debug.log("post worker creation");
         delete options.data;
         delete options.onReconstruct;
         delete options.onProgress;
