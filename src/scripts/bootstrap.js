@@ -35,6 +35,14 @@ _.mixin({
     var s = parseInt(num, 10) + "";
     while (s.length < size) s = 0 + s;
     return s;
+  },
+  arrayTo32Float : function(array) {
+    return new Float32Array(array);
+  },
+  remove : function(array, from, to) {
+    var rest = array.slice((to || from) + 1 || array.length);
+    array.length = from < 0 ? array.length + from : from;
+    return array.push.apply(array, rest);
   }
 });
 

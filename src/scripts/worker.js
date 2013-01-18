@@ -197,6 +197,7 @@ var getSelectionBuffer = function(buffers, altData, start, end) {
   for (var i = 0, _len = buffers.length; i < _len; i++) {  
     newBuffer = [], buffer = buffers[i];
     if (pos >= startFrame && pos <= endFrame) {
+
       var startCut = pos - startFrame >= buffer.length 
         ? 0
         : pos - startFrame;
@@ -212,7 +213,6 @@ var getSelectionBuffer = function(buffers, altData, start, end) {
     // }
     newData.push(newBuffer);
   }
-
   // for (var i = 0, _len = buffers.length; i < _len; i++) {
   //   newBuffer = [], y = 0;
 
@@ -222,8 +222,17 @@ var getSelectionBuffer = function(buffers, altData, start, end) {
   //   newData.push(newBuffer);
   // }
 
+  
+
   return newData;
 
+};
+
+var log = function(obj) {
+  self.postMessage({
+    action : "log",    
+    message : obj
+  });
 };
 
 var calculateWaveformPeaks = function(data, width) {
@@ -232,6 +241,8 @@ var calculateWaveformPeaks = function(data, width) {
 
   while (i--) {
     var values = data[i];
+    // var peak = getMax(values, 0, values.length);
+
     var peak = Math.max.apply(Math, values);
     if (typeof peak === "undefined") {
       peak = 0;

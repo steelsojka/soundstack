@@ -21,6 +21,7 @@ function(BaseModule, AudioFile) {
       this.gainAdjustmentFactor = 0.5;
       this.enableProcessing     = false;
       this.SAMPLE_RATE          = 44100;
+      this.tempBuffer           = {start : 0, end : 0, data : [], temps : []};
      
       var audioSource = new AudioFile(this.context);
       this.nodes.audioSource = audioSource;
@@ -71,31 +72,56 @@ function(BaseModule, AudioFile) {
         self.onAudioDecode({}, callback);
       });
     },
-    splitBuffers : function(data, split) {
+    splitBuffers : function(data, split, process) {
 
       debug.log("AUDIO FILE PLAYER: Splitting buffers...");
       debug.Timer.start();
 
       var _buffers = [];
       var buffers = data.data;
-      var x = buffers.length;
+      var y = 0;
 
-      while (x--) {
-        var splits = [], buffer = buffers[x], i = buffer.length;
-        var slice = Array.prototype.slice.bind(buffer);
-        while (i -= i < split ? i : split) {
-          splits.unshift({
-            data : slice(i, i + split),
+
+      // while (x--) {
+      //   var splits = [], buffer = buffers[x], i = buffer.length;
+      //   var slice = Array.prototype.slice.bind(buffer);
+      //   for (var i = buffer.length - 1; i >= 0; i -= split) {
+      //     var pos = i < split ? 0 : i - split;
+      //     splits.unshift({
+      //       data : slice(pos, i),
+      //       altData : {
+      //         _pos : i
+      //       }
+      //     });
+      //   };
+      // 
+      // async.forEachLimit(buffers[0], split, function(item, callback) {
+      //   // debug.log(item);
+      //   // debug.log(y++);
+      //   async.nextTick(callback);
+      // }, function() {
+      //   debug.log("DONE");
+      // });
+      for (var i = 0, _len = buffers[0].length; i < _len; i += split) {
+        var x = buffers.length;
+        var pos = _len - i < split ? _len : i + split;
+        var splits = [];
+        while(x--) {
+          splits.push({
+            data : Array.prototype.slice.call(buffers[x], i, pos),
             altData : {
               _pos : i
             }
           });
         }
+        this.onProgress("Parseing buffer...", ~~(y / data.totalProcesses) * 100);
+        process(splits);
+      }
         // for (var i = 0, j = buffer.length; i < j; i += split) {
         // }
         
-        _buffers.push(splits);
-      }
+        // _buffers.push(splits);
+      // }
      
       debug.log("AUDIO FILE PLAYER: Buffers split in " + debug.Timer.stop() + "s");
 
@@ -493,12 +519,15 @@ function(BaseModule, AudioFile) {
       var channel2 = [];
       var x = data.length;
       var i = 0;
+      debug.log("AUDIO FILE PLAYER: Reconstructing buffer...");
+      debug.Timer.start();
 
       while (x--) {
-        channel1.concat(data[i][0]);
-        channel2.concat(data[i++][1]);
+        channel1 = channel1.concat(data[i][0]);
+        channel2 = channel2.concat(data[i++][1]);
       }
 
+      debug.log("AUDIO FILE PLAYER: Buffer reconstructed in " + debug.Timer.stop() + "s");
       return [channel1, channel2];
     },
     getSelectionBuffer : function(callback) {
@@ -506,6 +535,10 @@ function(BaseModule, AudioFile) {
       var self = this;
 
       var channelData = this.getChannelData();
+      var start = this.selection.start * (buffer.length / buffer.duration);
+      var end = this.selection.end * (buffer.length / buffer.duration);
+      var processes = (end - start) % 0 ? end - start : end - start + 1;
+
 
       if (!this.selection.set) {
         callback(this.getChannelData());
@@ -525,9 +558,10 @@ function(BaseModule, AudioFile) {
       // 
       WorkerManager.addJob({
         action : "get-selection-buffer",
-        start : this.selection.start * (buffer.length / buffer.duration),
-        end : this.selection.end * (buffer.length / buffer.duration),
+        start : start,
+        end : end,
         data : channelData,
+        totalProcesses : processes,
         split : 500,
         onReconstruct : function(data) {
           callback(self.reconstructBuffer(data));
@@ -550,10 +584,47 @@ function(BaseModule, AudioFile) {
       var buffers = this.getChannelData();
       var start = this.selection.set ? Math.round(this.selection.start * this.SAMPLE_RATE) : 0;
       var end = this.selection.set ? Math.round(this.selection.end * this.SAMPLE_RATE) : buffers[0].length;
-
+      var channels = buffers.length;
+      var staged = [];
+      var compiled = [{start : 0, end : 0, data : []}];
       // worker.onmessage = function(e) {
       //   self.importBuffer(_.map(e.data.data, _.arrayTo32Float), callback);
       // };
+
+      var checkTemps = function(i) {
+
+        if (compiled[i - 1]) {
+          if (compiled[i].start === compiled[i - 1].end + 1) {
+            for (var x = 0; x < channels; x++) {
+              compiled[i].data[x] = compiled[i - 1].data[x] ? compiled[i - 1].data[x].concat(compiled[i].data[x]) : compiled[i].data[x];
+              // compiled[i] = compiled[i] ? compiled[i].concat(_data.data[i]) : _data.data[i];   
+            }
+            compiled[i].start = compiled[i - 1].end;
+            compiled.remove(compiled[i - 1]);
+            checkTemps(i);
+          }
+        }
+
+        if (i >= compiled.length) return;
+
+        checkTemps(i++);
+
+        // if (compiled[i + 1]) {
+        //   if (compiled[i.])
+        // }
+
+        // if (compiled === compiledEnd) {
+        //   compiledEnd = _data.processID;
+        // } else if (push) {
+        //   staged.push(_data);
+        // }
+      };
+
+      var sort = function() {
+        compiled.sort(function(a, b) {
+          return a.start - b.start;
+        });
+      };
 
       // this.trigger('status-update', 'Normalizing...');
       WorkerManager.addJob({
@@ -571,15 +642,20 @@ function(BaseModule, AudioFile) {
             split : 500,
             onSplit : self.splitBuffers,
             onReconstruct : function(res) {
-              var data = self.reconstructBuffer(res);
-              self.importBuffer(data, function() {
+              // var data = self.reconstructBuffer(res);
+              self.importBuffer(compiled, function() {
                 self.enableProcessing = true;
               });
               // self.replaceBufferSelection(data, function(res) {
               //   self.importBuffer(res, callback);
               // });
             },
-            onProgress : function(percent) {
+            onProgress : function(percent, data) {
+              // data.start = data.end = data.processID;
+              // compiled.push(data);
+              // sort();
+              // checkTemps(1);
+
               self.onProgress("Normalizing...", percent);
             }
           })

@@ -1,5 +1,6 @@
 (function(exports) {
 
+
   var clone = function(obj) {
     var o = {};
 
@@ -27,8 +28,8 @@
 
   WorkerQueue.prototype = {
     push : function(job) {
-      job.workerJob.totalProcesses += 1;
-      job.workerJob.remainingProcesses += 1;
+      // job.workerJob.totalProcesses += 1;
+      // job.workerJob.remainingProcesses += 1;
       this.queue.push(job);
       this.isComplete = false;
 
@@ -42,6 +43,8 @@
 
       job.workerJob.outstandingProcesses += 1;
 
+      // debug.log("S: " + job.postData.processID);
+
       // debug.clear();
       debug.log("WORKER QUEUE: Sending process " + job.postData.processID + " for job " + job.workerJob.id + " to worker...", true);
       this.worker.postMessage(job.postData);
@@ -54,12 +57,14 @@
         return;
       }
 
+      // debug.log("R: " + e.data.processID);
+
       this._tempJob.pushReturn(e.data);
 
       if (this.queue.length > 0) {
         this.process();
       } else {
-        this.onQueueEmpty();
+        // this.onQueueEmpty();
         // this.manager.checkQueues();
       }
     },
@@ -84,7 +89,6 @@
     this.isComplete = false;
     this.returnQueue = [];
     this.totalProcesses = 0;
-    this.remainingProcesses = 0;
     this.outstandingProcesses = 0;
 
     for (var key in options) {
@@ -92,6 +96,8 @@
         this[key] = options[key];
       }
     }
+
+    this.remainingProcesses = this.totalProcesses;
 
     debug.log("WORKER JOB " + this.id + ": Initialized...");
 
@@ -119,22 +125,30 @@
 
     },
     pushReturn : function(data) {
-      this.returnQueue.push(data);
+      this.returnQueue[data.processID - 1] = data.data;
       this.outstandingProcesses -= 1;
       this.remainingProcesses -= 1;
       this.checkJobStatus();
       this.onProgress(~~(((this.totalProcesses - this.remainingProcesses) / this.totalProcesses) * 100), data);
     },
     reconstruct : function() {
-      this.returnQueue.sort(function(a, b) {
-        return a.processID - b.processID;
-      });
+      // this.returnQueue.sort(function(a, b) {
+      //   return a.processID - b.processID;
+      // });
+
+      // _.each(this.returnQueue, function(q) {
+      //   if (q.data[0].length > 5) {
+      //     debug.log(q.data);
+      //   }
+      // });
 
       debug.log("WORKER JOB " + this.id + ": Job finished");
 
-      debug.log(_.pluck(this.returnQueue, "data"));
+      // debug.log(_.pluck(this.returnQueue, "data"));
 
-      this.onReconstruct(_.pluck(this.returnQueue, "data"));
+      this.onReconstruct(this.returnQueue);
+
+      // this.onReconstruct(_.pluck(this.returnQueue, "data"));
 
 
       // this.manager.processJob();
@@ -174,6 +188,7 @@
     },
     processJob : function() {
       var splitCount, worker_num = 0, id = 0;
+      var self = this;
 
 
       if (this.jobInProgress || this.jobQueue.length === 0) return;
@@ -190,47 +205,65 @@
       var workerJob = new WorkerJob({
         onReconstruct : options.onReconstruct || function() {},
         onProgress : options.onProgress || function() {},
+        totalProcesses : options.totalProcesses,
         id : ~~(Math.random() * 10000),
         manager : this
       });
 
-
-
       if (options.split) {
+        this.createWorkers(this.workerCount);
 
-        buffers = splitter.call(this, options, options.split);
-        splitCount = buffers[0].length;
-                // debug.log("pre worker creation");
-
-        this.createWorkers(splitCount < this.workerCount ? splitCount : this.workerCount);
-               // debug.log("post worker creation");
-
-        delete options.data;
-        delete options.onReconstruct;
-        delete options.onProgress;
-        delete options.onSplit;
-
-        for (var i = 0; i < splitCount; i++) {
-          var job = clone(options);
-          job.data = [];
+        buffers = splitter.call(this, options, options.split, function(data) {
+          
+          var job = _.omit(options, "data", "onReconstruct", "onSplit", "onProgress");
           job.altData = [];
-          for (var x = 0; x < buffers.length; x++) {
-            job.data.push(buffers[x][i].data);
-            job.altData.push(buffers[x][i].altData);
+          job.data = [];
+          for (var x = 0; x < data.length; x++) {
+            job.data.push(data[x].data);
+            job.altData.push(data[x].altData);
           }
 
-          job._pos = buffers[0][i]._pos;
+          job._pos = data[0]._pos;
           job.processID = ++id;
           job.jobID = workerJob.id;
 
-          this.queues[worker_num++].push({
+          self.queues[worker_num].push({
             postData : job,
             jobID : workerJob.id,
             workerJob : workerJob
           });
 
+          self.queues[worker_num].process();
+
           if (worker_num >= this.WORKER_COUNT) worker_num = 0;
-        }
+        });
+        // splitCount = buffers[0].length;
+                // debug.log("pre worker creation");
+
+        // this.createWorkers(splitCount < this.workerCount ? splitCount : this.workerCount);
+               // debug.log("post worker creation");
+
+        // for (var i = 0; i < splitCount; i++) {
+        //   var job = clone(options);
+        //   job.data = [];
+        //   job.altData = [];
+        //   for (var x = 0; x < buffers.length; x++) {
+        //     job.data.push(buffers[x][i].data);
+        //     job.altData.push(buffers[x][i].altData);
+        //   }
+
+        //   job._pos = buffers[0][i]._pos;
+        //   job.processID = ++id;
+        //   job.jobID = workerJob.id;
+
+        //   this.queues[worker_num++].push({
+        //     postData : job,
+        //     jobID : workerJob.id,
+        //     workerJob : workerJob
+        //   });
+
+        //   if (worker_num >= this.WORKER_COUNT) worker_num = 0;
+        // }
       } else {
         splitCount = 1;
         buffers = options.data;
@@ -238,11 +271,12 @@
         this.createWorkers(splitCount);
 
         debug.log("post worker creation");
-        delete options.data;
-        delete options.onReconstruct;
-        delete options.onProgress;
+        // delete options.data;
+        // delete options.onReconstruct;
+        // delete options.onProgress;
+        // delete options.onSplit;
 
-        var job = clone(options);
+        var job = _.omit(options, "data", "onReconstruct", "onSplit", "onProgress");
         job.data = buffers;
         job.processID = ++id;
         job.jobID = workerJob.id;
@@ -252,13 +286,15 @@
           jobID : workerJob.id,
           workerJob : workerJob
         });
+        
+        this.queues[0].process();
       }
       
 
 
-      for (i = 0, _len = splitCount < this.WORKER_COUNT ? splitCount : this.WORKER_COUNT; i < _len; i++) {
-        this.queues[i].process();
-      }
+      // for (i = 0, _len = splitCount < this.WORKER_COUNT ? splitCount : this.WORKER_COUNT; i < _len; i++) {
+      //   this.queues[i].process();
+      // }
     }
   };
 

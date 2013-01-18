@@ -7,6 +7,7 @@
     "library/underscore.js",
     "library/backbone.js",
     "library/Recorder.js",
+    "library/async.min.js",
     "debug.js" 
   );
 
@@ -67,8 +68,24 @@
       },
       arrayTo32Float : function(array) {
         return new Float32Array(array);
+      },
+      remove : function(array, from, to) {
+        var rest = array.slice((to || from) + 1 || array.length);
+        array.length = from < 0 ? array.length + from : from;
+        return array.push.apply(array, rest);
       }
     });
+
+  Array.prototype.remove = function() {
+  var what, a = arguments, L = a.length, ax;
+  while (L && this.length) {
+    what = a[--L];
+    while ((ax = this.indexOf(what)) !== -1) {
+        this.splice(ax, 1);
+    }
+  }
+  return this;
+};
 
     Math.log10 = function(val) {
       return Math.log(val) / Math.log(10);

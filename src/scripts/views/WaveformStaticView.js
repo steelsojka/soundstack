@@ -205,6 +205,9 @@ define(function() {
       var index = 0;
 
       var channelData = this.module.getChannelData();
+      var processes = (channelData[0].length / 4096) % 0 
+        ? channelData[0].length / 4096 
+        : ~~((channelData[0].length / 4096) + 0.5);
 
       this.fps = buffer.length / buffer.duration;
       this.fpp = channelData[0].length / this.canvas.width;
@@ -222,13 +225,13 @@ define(function() {
         this.clearWaveform();
       }
       
-      window.timerStart = this.module.context.currentTime;
       debug.log("WAVEFORM: Sending to worker manager...");
       WorkerManager.addJob({
         action : "waveform-peaks",
         data : channelData,
         split : channelData[0].length / 4096,
         width : 4096,
+        totalProcesses : 4096,
         onSplit : this.module.splitBuffers,
         onReconstruct : function(data) {
           // self.peaks = Array.prototype.concat([], _.map(data, function(d) { return d[0]; }));
@@ -237,9 +240,9 @@ define(function() {
           }
           self.clearStatus();
           self.animateWaveform = false;
-          debug.log(self.module.context.currentTime - timerStart);
         },
         onProgress : function(percent, data) {
+          debug.log(data);
           if (self.animateWaveform) {
             self.drawFrame(data.processID, data.data[0]);
           };
