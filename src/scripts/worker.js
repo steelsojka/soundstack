@@ -196,6 +196,11 @@ var getSelectionBuffer = function(buffers, altData, start, end) {
 
   for (var i = 0, _len = buffers.length; i < _len; i++) {  
     newBuffer = [], buffer = buffers[i];
+    log({
+      pos : pos,
+      startFrame : startFrame,
+      endFrame : endFrame
+    });
     if (pos >= startFrame && pos <= endFrame) {
 
       var startCut = pos - startFrame >= buffer.length 

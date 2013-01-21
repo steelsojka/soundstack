@@ -57,7 +57,7 @@ function(BaseModule, AudioFile) {
     },
     onFileRead : function(e, callback) {
       var self = this;
-      self.trigger('status-update', "Decoding audio...");
+      self.trigger('status-update', "Decoding audio... please wait");
       self.trigger('file-read');
       this.nodes.audioSource.decodeAudio(e.target.result, function() {
         self.onAudioDecode(e, callback);
@@ -83,7 +83,7 @@ function(BaseModule, AudioFile) {
 
 
       // while (x--) {
-      //   var splits = [], buffer = buffers[x], i = buffer.length;
+     //    var splits = [], buffer = buffers[x], i = buffer.length;
       //   var slice = Array.prototype.slice.bind(buffer);
       //   for (var i = buffer.length - 1; i >= 0; i -= split) {
       //     var pos = i < split ? 0 : i - split;
@@ -114,7 +114,7 @@ function(BaseModule, AudioFile) {
             }
           });
         }
-        this.onProgress("Parseing buffer...", ~~(y / data.totalProcesses) * 100);
+        // this.onProgress("Parseing buffer...", ~~(y / data.totalProcesses) * 100);
         process(splits);
       }
         // for (var i = 0, j = buffer.length; i < j; i += split) {
@@ -499,7 +499,7 @@ function(BaseModule, AudioFile) {
       this.trigger('status-update', 'Exporting selection...');
 
       this.getSelectionBuffer(function(res) {
-        self.export(res.data.data);
+        self.export(res);
       });
     },
     getChannelData : function() {
@@ -537,8 +537,8 @@ function(BaseModule, AudioFile) {
       var channelData = this.getChannelData();
       var start = this.selection.start * (buffer.length / buffer.duration);
       var end = this.selection.end * (buffer.length / buffer.duration);
-      var processes = (end - start) % 0 ? end - start : end - start + 1;
-
+      // var processes = (end - start) / 500 % 0 ? (end - start) / 500 : (end - start) / 500 + 1;
+      var processes = channelData[0].length / 500;
 
       if (!this.selection.set) {
         callback(this.getChannelData());
@@ -561,7 +561,7 @@ function(BaseModule, AudioFile) {
         start : start,
         end : end,
         data : channelData,
-        totalProcesses : processes,
+        totalProcesses : Math.round(processes),
         split : 500,
         onReconstruct : function(data) {
           callback(self.reconstructBuffer(data));

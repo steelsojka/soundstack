@@ -46,6 +46,17 @@ _.mixin({
   }
 });
 
+Array.prototype.remove = function() {
+  var what, a = arguments, L = a.length, ax;
+  while (L && this.length) {
+    what = a[--L];
+    while ((ax = this.indexOf(what)) !== -1) {
+        this.splice(ax, 1);
+    }
+  }
+  return this;
+};
+
 Math.log10 = function(val) {
   return Math.log(val) / Math.log(10);
 }
@@ -54,7 +65,7 @@ window.worker = new Worker("scripts/worker.js");
 
 window.globals = {
   isPlaying : false,
-  version : "0.1.2b"
+  version : "0.1.7"
 };
 
 require(["views/MainView", "models/MainModel", "components/AudioContext"], 

@@ -23,7 +23,7 @@
 
   exports.debug = {
     context : null,
-    enabled : true,
+    enabled : false,
     Timer : null,
     log : function(a, tempDisable) {
       if (this.enabled && !tempDisable) {

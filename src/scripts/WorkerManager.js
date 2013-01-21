@@ -74,7 +74,7 @@
     getQueue : function() {
       return this.queue;
     },
-    onQueueEmpty : function() {
+    kill : function() {
       this.isComplete = true;
       debug.log("WORKER QUEUE: Queue is empty.  Terminating...");
       this.worker.terminate();
@@ -117,6 +117,7 @@
       //   }
       //   if (!isComplete) break;
       // }
+      debug.log(this.remainingProcesses);
 
       if (this.remainingProcesses === 0 && !this.isComplete) {
         this.isComplete = true;
@@ -148,6 +149,8 @@
 
       this.onReconstruct(this.returnQueue);
 
+      this.manager.killQueues();
+
       // this.onReconstruct(_.pluck(this.returnQueue, "data"));
 
 
@@ -171,6 +174,9 @@
     },
     getQueues : function() {
       return this.queues;
+    },
+    killQueues : function() {
+      _.invoke(this.queues, "kill");
     },
     addJob : function(options) {
       this.jobQueue.push(options);

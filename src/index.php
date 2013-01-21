@@ -27,7 +27,7 @@
   <link rel="stylesheet" href="stylesheets/css/jquery-ui-1.9.1.custom.min.css">
   <link rel="stylesheet" href="stylesheets/css/main.css">
   <!-- <link href='http://fonts.googleapis.com/css?family=Audiowide' rel='stylesheet' type='text/css'> -->
-  <script>
+  <script type="text/javascript">
     var env = "web";
 
     window.global_relay = _.extend({}, Backbone.Events);
@@ -76,16 +76,16 @@
       }
     });
 
-  Array.prototype.remove = function() {
-  var what, a = arguments, L = a.length, ax;
-  while (L && this.length) {
-    what = a[--L];
-    while ((ax = this.indexOf(what)) !== -1) {
-        this.splice(ax, 1);
-    }
-  }
-  return this;
-};
+    Array.prototype.remove = function() {
+      var what, a = arguments, L = a.length, ax;
+      while (L && this.length) {
+        what = a[--L];
+        while ((ax = this.indexOf(what)) !== -1) {
+            this.splice(ax, 1);
+        }
+      }
+      return this;
+    };
 
     Math.log10 = function(val) {
       return Math.log(val) / Math.log(10);
@@ -96,7 +96,7 @@
         
     window.globals = {
       isPlaying : false,
-      version : "0.1.2b"
+      version : "0.1.7"
     };
 
 

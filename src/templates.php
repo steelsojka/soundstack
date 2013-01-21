@@ -10,7 +10,7 @@
       <option value="load">Load...</option>
       <option value="save">Save...</option>
       <option value="help">Help...</option>
-      <option value="settings">Settings...</option>
+      <?php /*<option value="settings">Settings...</option>*/?>
       <option value="about">About</option>
     </select>
   </div>
@@ -184,6 +184,7 @@
         <option value="export selection">Export selection...</option>
       </select>
     </div>
+    <?php /*
     <div class="edit-menu">
       <div>Edit</div>
       <select>
@@ -202,6 +203,7 @@
         <option value="adjust gain">Adjust Gain...</option>
       </select>
     </div>
+    */ ?>
   </div>
 </script>
 
